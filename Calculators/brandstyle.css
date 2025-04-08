@@ -1,0 +1,178 @@
+/* brandstyle.css */
+
+/* === Base Styles === */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #F7F9FC; /* Neutral light background */
+  color: #333;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* === Header === */
+header {
+  text-align: center;
+  padding: 20px 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #E1E1E1;
+  background-color: #fff;
+}
+
+.logo-container {
+  margin-bottom: 10px;
+}
+
+.logo {
+  max-width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 1.8rem;
+  color: #003366;  /* Primary Company Blue */
+  margin: 0;
+}
+
+/* === Form Layout === */
+form {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Group form fields in sections */
+.form-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #E1E1E1;
+}
+
+.form-section:last-child {
+  border-bottom: none;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* Inputs, Selects, and Textareas */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Dropdown (select) styling for a modern look */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20fill='none'%20stroke='%23003366'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='2'%20class='icon'%20viewBox='0%200%2024%2024'%3E%3Cpolyline%20points='6%209%2012%2015%2018%209'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px 16px;
+}
+
+/* === Buttons === */
+.button-group {
+  text-align: center;
+  margin-top: 20px;
+}
+
+button {
+  background-color: #003366;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #002244;
+}
+
+/* === Output / Result Section === */
+.output-section {
+  background-color: #e9e9e9;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 20px;
+  font-size: 1.1rem;
+}
+
+/* === Info Popover and Icon Styling (applies to all screen sizes) === */
+.info-popover {
+position: absolute;
+z-index: 1000;
+background-color: #ffffff;
+color: #333;
+border: 1px solid #ccc;
+padding: 8px;
+border-radius: 4px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+display: none; /* Hidden by default */
+max-width: 300px;
+font-size: 0.9rem;
+line-height: 1.4;
+}
+
+.info-icon {
+cursor: pointer;
+padding: 4px;
+background-color: #eee;
+border-radius: 50%;
+width: 20px;
+height: 20px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+font-size: 0.8rem;
+margin-left: 5px;
+transition: background-color 0.2s;
+}
+
+.info-icon:hover {
+background-color: #ccc;
+}
+
+/* === Responsive Adjustments === */
+@media (max-width: 600px) {
+  .form-section {
+    padding-bottom: 10px;
+  }
+  .button-group {
+    display: block;
+  }
+  button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}

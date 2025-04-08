@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+  <title>BAYSHORE PLUMBERS - PERMITS LIST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="matlook.css">
+</head>
+<body>
+  <header class="header-container">
+    <div class="navbar">
+      <div class="nav-logo border cart-logo">
+        <div class="logo"></div>
+      </div>
+      <div class="nav-search">
+        <select class="search-select" id="category-select">
+          <option value="ALL">ALL</option>
+          <!-- Additional categories if needed -->
+        </select>
+        <input placeholder="Search Bayshore Plumbers Permits List" class="search-input" id="search-input">
+        <div class="search-icon">
+          <i class="fa-solid fa-magnifying-glass" onclick="searchPermits()"></i>
+        </div>
+      </div>
+      <div class="cart-icon" onclick="goToCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-counter" class="cart-counter">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Top Pagination -->
+  <div class="pagination pagination-container" id="top-pagination-container"></div>
+
+  <!-- Permit container -->
+  <div class="container" id="permits-container"></div>
+  
+  <!-- Bottom Pagination -->
+  <div class="pagination pagination-container" id="bottom-pagination-container"></div>
+  
+  <script>
+    function normalizeText(text) {
+      text = text.toLowerCase();
+      text = text.replace(/(\d+)\s*(?:-|and\s+)?1\/2(?:\s*(?:inches|inch|in))?/g, (match, p1) => (parseFloat(p1) + 0.5).toString());
+      text = text.replace(/(\d+)\s*(?:-|and\s+)?a\s+half(?:\s*(?:inches|inch|in))?/g, (match, p1) => (parseFloat(p1) + 0.5).toString());
+      text = text.replace(/["']/g, "");
+      text = text.replace(/\s+/g, " ");
+      return text.trim();
+    }
+
+    function generateUID(item) {
+      return normalizeText(`${item["Ln#"]}-${item["Part Number"] || ''}-${item.Description}-permit`);
+    }
+
+    const permitsData = [
+      { "Ln#": 1, "Description": "Traffic Control Plan (TCP)", "price": 311.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TCP.jpg" },
+      { "Ln#": 2, "Description": "West Bay Sewer", "price": 510.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/WBS.jpg" },
+      { "Ln#": 3, "Description": "Fair Oaks Sewer", "price": 350.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/FOS.png" },
+      { "Ln#": 4, "Description": "Menlo Park Encroachment Permit", "price": 670.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MPEP.jpg" },
+      { "Ln#": 5, "Description": "Menlo Park Building Permit", "price": 160.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MPBP.png" },
+      { "Ln#": 6, "Description": "Palo Alto Building Permit", "price": 450.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PABP.jpg" },
+      { "Ln#": 7, "Description": "Palo Alto Street Permit", "price": 850.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PASP.jpg" },
+      { "Ln#": 8, "Description": "Atherton Building Permit", "price": 315.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/ABP.jpg" },
+      { "Ln#": 9, "Description": "Atherton Encroachment Permit", "price": 2550.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/AEP.jpg" },
+      { "Ln#": 10, "Description": "Atherton REFUNDABLE Deposit", "price": 2500.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/ARD.jpg" },
+      { "Ln#": 11, "Description": "Redwood City Building Permit", "price": 190.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/RCBP.jpg" },
+      { "Ln#": 12, "Description": "Redwood City Encroachment Permit", "price": 3000.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/RCEP.jpg" },
+      { "Ln#": 13, "Description": "Portola Valley Building Permit", "price": 433.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PVBP.jpg" },
+      { "Ln#": 14, "Description": "Portola Valley Encroachment Permit", "price": 943.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PVEP.jpg" },
+      { "Ln#": 15, "Description": "Town of Woodside Building Permit", "price": 500.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TWBP.jpg" },
+      { "Ln#": 16, "Description": "Town of Woodside Encroachment Permit", "price": 1300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TWEP.jpg" },
+      { "Ln#": 17, "Description": "Millbrae Buiding Permit", "price": 670.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MBP.jpg" },
+      { "Ln#": 18, "Description": "Millbrae Encroachment Permit", "price": 3400.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MEP.jpg" },
+      { "Ln#": 19, "Description": "San Carlos Building Permit", "price": 435.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/SCBP.jpg" },
+      { "Ln#": 20, "Description": "San Carlos Street Permit", "price": 575.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/SCSP.jpg" },
+      { "Ln#": 21, "Description": "Belmont Building Permit", "price": 350.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BBP.jpg" },
+      { "Ln#": 22, "Description": "Belmont Encroachment Permit", "price": 1250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BEP.jpg" },
+      { "Ln#": 23, "Description": "Belmont Security Deposit", "price": 600.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BSD.jpg" },
+      { "Ln#": 24, "Description": "Mountain View Building Permit", "price": 300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MVBP.jpg" },
+      { "Ln#": 25, "Description": "Mountain View Encroachment Permit", "price": 1465.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MVEP.jpg" },
+      { "Ln#": 26, "Description": "CITY of SAN MATEO Building Permit", "price": 300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMBP.jpg" },
+      { "Ln#": 27, "Description": "CITY of SAN MATEO Encroachment Permit", "price": 950.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMEP.jpg" },
+      { "Ln#": 28, "Description": "CITY of SAN MATEO Security Deposit", "price": 3000.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMSD.jpg" },
+      { "Ln#": 29, "Description": "COUNTY of SAN MATEO Building Permit", "price": 250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CoSMBP.jpg" },
+      { "Ln#": 30, "Description": "COUNTY of SAN MATEO Encroachment Permit", "price": 550.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CoSMEP.jpg" },
+      { "Ln#": 31, "Description": "Santa Clara Building Permit", "price": 250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/StCBP.jpg" },
+      { "Ln#": 32, "Description": "Santa Clara Encroachment Permit", "price": 815.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/StCEP.jpg" },
+      { "Ln#": 33, "Description": "Hillsborough Building Permit", "price": 255.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/HBBP.jpg" },
+      { "Ln#": 34, "Description": "Hillsborough Encroachment Permit", "price": 1463.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/HBEP.jpg" },
+    ];
+
+    const permitsPerPage = 25;
+    let currentPage = 1;
+    let cart = [];
+
+    window.onload = function () {
+      loadCartFromStorage();
+      updateCartItemCount();
+      displayPermits(currentPage);
+      document.getElementById('search-input').addEventListener('input', debounce(searchPermits, 300));
+    };
+
+    function displayPermits(page, permits = permitsData) {
+      const container = document.getElementById('permits-container');
+      const start = (page - 1) * permitsPerPage;
+      const end = Math.min(start + permitsPerPage, permits.length);
+      const items = permits.slice(start, end);
+      container.innerHTML = '';
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.classList.add('permit');
+        const img = document.createElement('img');
+        img.src = item.ImageURL;
+        img.alt = item.Description;
+        div.appendChild(img);
+        const details = document.createElement('div');
+        details.classList.add('details');
+        details.innerHTML = `
+          <p><strong>Description: ${item.Description}</strong></p>
+          <p>Price: $${item.price.toFixed(2)}</p>
+          <p>Quantity: ${item.quantity} ${item.Unit}</p>
+        `;
+        div.appendChild(details);
+        const btn = document.createElement('button');
+        btn.classList.add('add-to-cart');
+        btn.textContent = 'Add to Cart';
+        btn.addEventListener('click', () => addToCart(item));
+        div.appendChild(btn);
+        container.appendChild(div);
+      });
+      displayPagination(permits.length);
+    }
+
+    function displayPagination(total) {
+      const totalPages = Math.ceil(total / permitsPerPage);
+      const containers = document.querySelectorAll('.pagination-container');
+      containers.forEach(container => {
+        container.innerHTML = '';
+        const prev = document.createElement('button');
+        prev.textContent = 'Previous';
+        prev.disabled = currentPage === 1;
+        prev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; displayPermits(currentPage); } });
+        container.appendChild(prev);
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.textContent = i;
+          btn.classList.add('pagination-button');
+          if (i === currentPage) btn.classList.add('active');
+          btn.addEventListener('click', () => { currentPage = i; displayPermits(currentPage); });
+          container.appendChild(btn);
+        }
+        const next = document.createElement('button');
+        next.textContent = 'Next';
+        next.disabled = currentPage === totalPages;
+        next.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; displayPermits(currentPage); } });
+        container.appendChild(next);
+      });
+    }
+
+    function searchPermits() {
+      const searchVal = document.getElementById('search-input').value.trim().toLowerCase();
+      const filtered = permitsData.filter(item => item.Description.toLowerCase().includes(searchVal));
+      currentPage = 1;
+      displayPermits(currentPage, filtered);
+    }
+
+    function addToCart(item) {
+      const uid = generateUID(item);
+      const existingIndex = cart.findIndex(cartItem => cartItem.uid === uid);
+      if (existingIndex !== -1) {
+        cart[existingIndex].quantity += item.quantity;
+      } else {
+        cart.push({ ...item, uid, quantity: item.quantity });
+      }
+      updateCartItemCount();
+      saveCartToStorage();
+      broadcastCartUpdate();
+    }
+
+    function loadCartFromStorage() {
+      const stored = localStorage.getItem('cart');
+      if (stored) { cart = JSON.parse(stored); updateCartItemCount(); }
+    }
+
+    function saveCartToStorage() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function updateCartItemCount() {
+      const total = cart.reduce((sum, item) => {
+        if (item.Unit && item.Unit.toUpperCase() !== "EA") {
+          return sum + 1;
+        } else {
+          return sum + item.quantity;
+        }
+      }, 0);
+      document.getElementById('cart-counter').textContent = total;
+    }
+
+    function broadcastCartUpdate() {
+      window.dispatchEvent(new Event('storage'));
+    }
+
+    function debounce(func, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+      };
+    }
+
+    function goToCart() {
+      window.location.href = "cart.html";
+    }
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <title>Water Heater Bidding Calculator - Bayshore Plumbers</title>
+  <!-- Normalize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <!-- Unified Brand Styles for Screen and Print -->
+  <link rel="stylesheet" href="brandstyle.css" type="text/css">
+  <link rel="stylesheet" href="brandprint.css" type="text/css" media="print">
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <img src="BP.png" alt="Bayshore Plumbers Logo" class="logo">
+    </div>
+    <h1>Water Heater Bidding Calculator</h1>
+    <hr class="header-separator">
+  </header>
+  <main class="container">
+    <form id="biddingForm">
+      <!-- Section 1: Basic Input Group -->
+      <section class="form-section">
+        <div class="form-row">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="et">Estimated Time (hrs):</label>
+              <input type="number" id="et" name="et" min="0" step="0.1" placeholder="Enter Estimated Time">
+            </div>
+            <div class="form-group">
+              <label for="material">Material Expenses ($):</label>
+              <input type="number" id="material" name="material" placeholder="Enter Material Expenses" min="0">
+            </div>
+            <div class="form-group">
+              <label for="am">Additional Manpower:</label>
+              <input type="number" id="am" name="am" placeholder="Enter Additional Manpower" min="0">
+            </div>
+          </div>
+          <div class="form-column">
+            <div class="form-group">
+              <label for="others">Other Expenses ($):</label>
+              <input type="number" id="others" name="others" placeholder="Enter Other Expenses (if any)" min="0">
+            </div>
+            <div class="form-group">
+              <label for="discount">Discounts:</label>
+              <select id="discount" name="discount">
+                <option value="no discount">No Discount</option>
+                <option value="5%">5 Percent</option>
+                <option value="10%">10 Percent</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="permits">Permits Required:</label>
+              <div class="checkbox-group">
+                <label><input type="checkbox" id="permits" name="permits"> Yes</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="financing">Financing Option:</label>
+              <select id="financing" name="financing">
+                <option value="none">None</option>
+                <option value="2832">Plan 2832</option>
+                <option value="2611">Plan 2611</option>
+                <option value="9998">Plan 9998</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Section 2: After Hours -->
+      <section class="form-section">
+        <div class="form-group checkbox-group">
+          <label for="afterHours">
+            <input type="checkbox" id="afterHours" name="afterHours">
+            After Hours
+          </label>
+        </div>
+      </section>
+      <!-- Section 3: Output -->
+      <section class="form-section output-section">
+        <div class="output-group">
+          <label for="finalPrice">Final Bidding Price:</label>
+          <span id="finalPrice">$0.00</span>
+        </div>
+        <div id="breakdown" class="breakdown"></div>
+      </section>
+      <!-- Section 4: Buttons -->
+      <section class="form-section buttons-section">
+        <div class="button-group">
+          <button type="button" id="calculateBtn">Calculate</button>
+          <button type="button" id="printBtn">Print</button>
+        </div>
+      </section>
+    </form>
+  </main>
+  <script src="heater.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js"></script>
+</body>
+</html>

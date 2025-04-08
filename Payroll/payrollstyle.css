@@ -1,0 +1,192 @@
+/* =======================
+   Modern "Time Card" Look
+   ======================= */
+
+/* ===== RESET / BASE STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* Example: Make the logo smaller on screen */
+.logo {
+    max-width: 200px; /* Adjust as needed (e.g., 40px, 80px) */
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+  
+  html, body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #F7F9FC;
+    color: #333;
+    line-height: 1.5;
+    font-size: 1rem;
+  }
+  
+  /* ===== CONTAINER ===== */
+  .container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  /* ===== HEADER BAR ===== */
+  .top-bar {
+    background-color: #003366; /* Accent color */
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    margin: -20px -20px 20px -20px; /* Stretch across container edges */
+  }
+  
+  .top-bar h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  
+  /* ===== SUBHEADINGS (optional) ===== */
+  .subheading {
+    margin: 15px 0 10px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #003366;
+    border-bottom: 2px solid #003366;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+  
+  /* ===== FORM ELEMENTS ===== */
+  form {
+    margin-top: 20px;
+  }
+  
+  /* Label for form fields (if you have them) */
+  label {
+    display: block;
+    margin: 8px 0 3px;
+    font-weight: 600;
+  }
+  
+  /* Inputs, selects, textareas */
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+  
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #003366;
+    outline: none;
+  }
+  
+  /* ===== TABLES ===== */
+  table.input-data {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  table.input-data thead th {
+    background-color: #DCE6F1; /* Light accent background */
+    color: #003366;
+    text-align: center;
+    font-weight: bold;
+    padding: 12px;
+    border: 1px solid #bbb;
+  }
+  
+  table.input-data th,
+  table.input-data td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.95rem;
+  }
+  
+  /* ===== BUTTONS ===== */
+  .button-group {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  button,
+  .dynamic-button {
+    display: inline-block;
+    background-color: #003366;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover,
+  .dynamic-button:hover {
+    background-color: #002244;
+  }
+  
+  /* Red/Green variants for dynamic buttons */
+  .non-assisted {
+    background-color: #B22234 !important; 
+  }
+  .assisted {
+    background-color: #2E8B57 !important;
+  }
+  
+  /* ===== COMMISSION DISPLAY ===== */
+  .commission-display {
+    background-color: #003366;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2rem;
+    border-radius: 4px;
+  }
+  
+  /* ===== OUTPUT SECTION ===== */
+  .output-section {
+    background-color: #f7f7f7;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+  }
+  
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .container {
+      margin: 10px;
+      padding: 15px;
+    }
+  
+    table.input-data th,
+    table.input-data td {
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+  }
+  

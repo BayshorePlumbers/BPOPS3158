@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <title>Liner Bidding Calculator - Bayshore Plumbers</title>
+  <!-- Normalize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <!-- Unified Brand Styles for Screen and Print -->
+  <link rel="stylesheet" href="brandstyle.css" type="text/css">
+  <link rel="stylesheet" href="brandprint.css" type="text/css" media="print">
+</head>
+<body>
+  <header>
+    <div class="logo-container">
+      <img src="BP.png" alt="Bayshore Plumbers Logo" class="logo">
+    </div>
+    <h1>Liner Bidding Calculator</h1>
+    <hr class="header-separator">
+  </header>
+  <main class="container">
+    <form id="linerForm" novalidate>
+      <!-- Section 1: Liner Details -->
+      <section class="form-section">
+        <div class="form-group">
+          <label for="length" title="Enter the length in feet. Minimum is 1.">Length (ft):</label>
+          <input type="number" id="length" name="length" min="1" required placeholder="Enter length">
+        </div>
+        <div class="form-group checkbox-group">
+          <label for="houseCleanOut" title="House clean out install/repair required?">
+            House Clean Out Install/Repair Required?
+          </label>
+          <input type="checkbox" id="houseCleanOut" name="houseCleanOut">
+        </div>
+        <div class="form-group checkbox-group">
+          <label for="propertyLineCleanOut" title="Property line clean out required?">
+            Property Line Clean Out Required?
+          </label>
+          <input type="checkbox" id="propertyLineCleanOut" name="propertyLineCleanOut">
+        </div>
+      </section>
+
+      <!-- Section 2: Landscape & Expenses -->
+      <section class="form-section">
+        <div class="form-group">
+          <label for="landscape" title="Select the type of landscape repair needed.">Landscape Repair:</label>
+          <select id="landscape" name="landscape">
+            <option value="0">None</option>
+            <option value="300">Concrete</option>
+            <option value="300">Pavers</option>
+            <option value="50">Grass</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="reInstate" title="Enter how many re-instates are required.">
+            Re-Instate Required? How Many:
+          </label>
+          <input type="number" id="reInstate" name="reInstate" min="0" placeholder="Enter number">
+        </div>
+        <div class="form-group checkbox-group">
+          <label for="buildingPermit" title="Is a building permit required?">
+            Building Permit Required?
+          </label>
+          <input type="checkbox" id="buildingPermit" name="buildingPermit">
+        </div>
+        <div class="form-group">
+          <label for="otherExpenses" title="Enter any other additional expenses.">
+            Other Expenses:
+          </label>
+          <input type="number" id="otherExpenses" name="otherExpenses" min="0" placeholder="Enter other expenses">
+        </div>
+        <div class="form-group">
+          <label for="discount">Discounts:</label>
+          <select id="discount" name="discount">
+            <option value="no discount">No Discount</option>
+            <option value="5%">5 Percent</option>
+            <option value="10%">10 Percent</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Section 3: Additional Options -->
+      <section class="form-section">
+        <div class="form-group checkbox-group">
+          <label for="afterHours">After Hours:</label>
+          <input type="checkbox" id="afterHours" name="afterHours">
+        </div>
+      </section>
+
+      <!-- Section 4: Output -->
+      <section class="form-section output-section">
+        <div class="output-group">
+          Total Price: <span id="totalPrice">$0.00</span>
+        </div>
+        <div id="breakdown" class="breakdown"></div>
+      </section>
+
+      <!-- Section 5: Buttons -->
+      <section class="form-section buttons-section">
+        <div class="button-group">
+          <button type="button" id="calculateBtn">Calculate</button>
+          <button type="button" id="printBtn">Print</button>
+        </div>
+      </section>
+    </form>
+  </main>
+  <script src="liner.js"></script>
+</body>
+</html>

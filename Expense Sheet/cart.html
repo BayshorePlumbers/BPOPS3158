@@ -1,0 +1,4552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <title>BAYSHORE PLUMBERS - PROJECT CART</title>
+  <link rel="stylesheet" href="matlook.css">
+</head>
+<body class="cart-page">
+  <header class="header-container">
+    <div class="navbar">
+      <div class="nav-logo border">
+        <div class="logo"></div>
+      </div>
+      <div class="nav-search">
+        <input placeholder="Search Items" class="search-input" id="search-input">
+        <div class="search-icon">
+          <i class="fa-solid fa-magnifying-glass" onclick="searchItems()"></i>
+        </div>
+      </div>
+      <div class="cart-icon" onclick="goToCartPage()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-counter" id="cart-counter">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="input-fields">
+    <table>
+      <tr>
+        <td><label for="technician-name">TECHNICIAN'S NAME:</label></td>
+        <td><input type="text" id="technician-name" name="technician-name"></td>
+      </tr>
+      <tr>
+        <td><label for="date">DATE:</label></td>
+        <td><input type="date" id="date" name="date"></td>
+      </tr>
+      <tr>
+        <td><label for="job-address">JOB ADDRESS:</label></td>
+        <td><input type="text" id="job-address" name="job-address"></td>
+      </tr>
+      <tr>
+        <td><label for="notes">NOTES (if any):</label></td>
+        <td><textarea id="notes" name="notes" rows="4"></textarea></td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="container cart-container">
+    <div class="cart-content">
+      <h2>MATERIALS</h2>
+      <div class="container materials-container" id="materials-container"></div>
+      <div class="category-total" id="materials-total">Total Materials price: $0.00</div>
+
+      <h2>EQUIPMENTS</h2>
+      <div class="container equipments-container" id="equipments-container"></div>
+      <div class="category-total" id="equipments-total">Total Equipments price: $0.00</div>
+
+      <h2>PERMITS</h2>
+      <div class="container permits-container" id="permits-container"></div>
+      <div class="category-total" id="permits-total">Total Permits price: $0.00</div>
+
+      <div class="total-price" id="overall-total-price">
+        Total price: $<span id="total-price">0.00</span>
+      </div>
+
+      <div class="button-container">
+        <button onclick="calculateTotalprice()">Calculate: Total price</button>
+        <button onclick="clearCart()">Clear Cart</button>
+        <button onclick="finalizeAndPrint()">Print</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function normalizeText(text) {
+      text = text.toLowerCase();
+      text = text.replace(/(\d+)\s*(?:-|and\s+)?1\/2(?:\s*(?:inches|inch|in))?/g, (match, p1) => (parseFloat(p1) + 0.5).toString());
+      text = text.replace(/(\d+)\s*(?:-|and\s+)?a\s+half(?:\s*(?:inches|inch|in))?/g, (match, p1) => (parseFloat(p1) + 0.5).toString());
+      text = text.replace(/["']/g, "");
+      text = text.replace(/\s+/g, " ");
+      return text.trim();
+    }
+
+    function generateUID(item, defaultCategory) {
+      const category = item.Category || defaultCategory;
+      const partNumber = item["Part Number"] || "";
+      return normalizeText(`${item["Ln#"]}-${partNumber}-${item.Description}-${category}`);
+    }
+
+    let cart = [];
+    // Data arrays for materials, equipments, permits (use same as in respective pages)
+    const materialsData = [
+    {
+              "Ln#": 1,
+              "Part Number": "ABP4",
+              "Description": "ABS PIPE 4\" 20feet",
+              "price": 72.50,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 72.50,
+              "ImageURL": "ABP4.jpg",
+              "Category": "ABS"
+            },
+            {
+              "Ln#": 1.1,
+              "Part Number": "ABP4",
+              "Description": "ABS PIPE 4\" 10feet",
+              "price": 36.25,
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 36.25,
+              "ImageURL": "ABP4.jpg",
+              "Category": "ABS"
+            },
+            {
+              "Ln#": 2,
+              "Part Number": "ABP3",
+              "Description": "ABS PIPE 3\" 20\'",
+              "price": 47.74,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 47.74,
+              "ImageURL": "ABP3.jpg",
+              "Category": "ABS"
+            },
+            {
+              "Ln#": 2.1,
+              "Part Number": "ABP3",
+              "Description": "ABS PIPE 3\" 10\'",
+              "price": 23.88,
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 23.88,
+              "ImageURL": "ABP3.jpg",
+              "Category": "ABS"
+            },
+            {
+              "Ln#": 3,
+              "Part Number": "ABP2",
+              "Description": "ABS PIPE 2\" 20\'",
+              "Category": "ABS",
+              "price": 25.14,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 25.14,
+              "ImageURL": "ABP2.jpg"
+            },
+            {
+              "Ln#": 3.1,
+              "Part Number": "ABP2",
+              "Description": "ABS PIPE 2\" 10\'",
+              "Category": "ABS",
+              "price": 12.56,
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 12.56,
+              "ImageURL": "ABP2.jpg"
+            },
+            {
+              "Ln#": 4,
+              "Part Number": "ABP112",
+              "Description": "ABS PIPE 1-1/2\" 20\'",
+              "price": 18.30,
+              "Category": "ABS",
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 18.30,
+              "ImageURL": "ABP112.jpg"
+            },
+            {
+              "Ln#": 4.1,
+              "Part Number": "ABP112",
+              "Description": "ABS PIPE 1-1/2\" 10\'",
+              "price": 9.14,
+              "Category": "ABS",
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 9.14,
+              "ImageURL": "ABP112.jpg"
+            },
+            {
+              "Ln#": 5,
+              "Part Number": "PVPSDR17G4",
+              "Description": "4\" X 20' SDR17 GRAY HDPE SEWER PIPE",
+              "price": 54.19,
+              "Category": "SDR17",
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 54.19,
+              "ImageURL": "PVPSDR17G4.jpg"
+            },
+            {
+              "Ln#": 5.1,
+              "Part Number": "PVPSDR17G4",
+              "Description": "4\" X 10' SDR17 GRAY HDPE SEWER PIPE",
+              "price": 27.09,
+              "Category": "SDR17",
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 27.09,
+              "ImageURL": "PVPSDR17G4.jpg"
+            },
+            {
+              "Ln#": 6,
+              "Part Number": "PVPSDR264",
+              "Description": "4\" X 14' PVC SDR26 GASKETED SEWER PIPE",
+              "price": 77.31,
+              "Category": "SDR26 PVC",
+              "quantity": 14,
+              "Unit": "CF",
+              "extendedprice": 77.31,
+              "ImageURL": "PVPSDR264.jpg"
+            },
+            {
+              "Ln#": 6.1,
+              "Part Number": "PVPSDR264",
+              "Description": "4\" X 7' PVC SDR26 GASKETED SEWER PIPE",
+              "price": 38.65,
+              "Category": "SDR26 PVC",
+              "quantity": 7,
+              "Unit": "CF",
+              "extendedprice": 38.65,
+              "ImageURL": "PVPSDR264.jpg"
+            },
+            {
+              "Ln#": 7,
+              "Part Number": "PVPDR184",
+              "Description": "4\" X 20\' PVC C900 DR18 BLUE PIPE",
+              "price": 245.13,
+              "Category": "PVC",
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 245.13,
+              "ImageURL": "PVPDR184.jpg"
+            },
+            {
+              "Ln#": 7.1,
+              "Part Number": "PVPDR184",
+              "Description": "4\" X 10\' PVC C900 DR18 BLUE PIPE",
+              "price": 122.57,
+              "Category": "PVC",
+              "quantity": 10,
+              "Unit": "CF",
+              "extendedprice": 122.57,
+              "ImageURL": "PVPDR184.jpg"
+            },
+            {
+              "Ln#": 8,
+              "Part Number": "MSCPBS4",
+              "Description": "4\" CLAY PIPE BAND SEAL 1=1 FT MISSION",
+              "price": 66,
+              "Category": "CLAY BAND",
+              "quantity": 5,
+              "Unit": "FT",
+              "extendedprice": 66,
+              "ImageURL": "MSCPBS4.jpg"
+            },
+            {
+              "Ln#": 9,
+              "Part Number": "PFT44",
+              "Description": "4\" PVC DWV 45 ELL",
+              "price": 21.46,
+              "Category": "PVC",
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 21.46,
+              "ImageURL": "PFT44.jpg"
+            },
+            {
+              "Ln#": 10,
+              "Part Number": "AFT44",
+              "Description": "4\" ABS DWV 45 ELL",
+              "price": 14.34,
+              "Category": "ABS",
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 14.34,
+              "ImageURL": "AFT44.jpg"
+            },
+            {
+              "Ln#": 11,
+              "Part Number": "PFTS44",
+              "Description": "4\" PVC DWV STREET 45 ELL",
+              "price": 19.06,
+              "Category": "PVC",
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 19.06,
+              "ImageURL": "PFTS44.jpg"
+            },
+            {
+              "Ln#": 12,
+              "Part Number": "AFTS44",
+              "Description": "4\" ABS DWV STREET 45 ELL",
+              "price": 14.61,
+              "Category": "ABS",
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 14.61,
+              "ImageURL": "AFTS44.jpg"
+            },
+            {
+              "Ln#": 13,
+              "Part Number": "PFTR43",
+              "Description": "4\" X 3\" PVC DWV REDUCER / INCREASER",
+              "price": 19.32,
+              "Category": "PVC",
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 19.32,
+              "ImageURL": "PFTR43.jpg"
+            },
+            {
+              "Ln#": 14,
+              "Part Number": "AFTR43",
+              "Description": "4\" X 3\" ABS DWV REDUCER / INCREASER",
+              "price": 13.73,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 13.73,
+              "ImageURL": "AFTR43.jpg"
+            },
+            {
+              "Ln#": 15,
+              "Part Number": "PFTCB43",
+              "Description": "4\" X 3\" PVC DWV HUB*HUB CLOSET BEND",
+              "price": 21.09,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 21.09,
+              "ImageURL": "PFTCB43.jpg"
+            },
+            {
+              "Ln#": 16,
+              "Part Number": "AFTCB43",
+              "Description": "4\" X 3\" ABS DWV HUB*HUB CLOSET BEND",
+              "price": 13.46,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 13.46,
+              "ImageURL": "AFTCB43.jpg"
+            },
+            {
+              "Ln#": 17,
+              "Part Number": "PFTY4",
+              "Description": "4\" PVC DWV WYE",
+              "price": 43.46,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 43.46,
+              "ImageURL": "PFTY4.jpg"
+            },
+            {
+              "Ln#": 18,
+              "Part Number": "AFTY4",
+              "Description": "4\" ABS DWV WYE",
+              "price": 31.54,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 31.54,
+              "ImageURL": "AFTY4.jpg"
+            },
+            {
+              "Ln#": 19,
+              "Part Number": "PFTCO4",
+              "Description": "4\" PVC DWV FTG CLEANOUT ADAPTER",
+              "price": 18.98,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 18.98,
+              "ImageURL": "PFTCO4.jpg"
+            },
+            {
+              "Ln#": 20,
+              "Part Number": "AFTCO4",
+              "Description": "4\" ABS DWV FTG CLEANOUT ADAPTER",
+              "price": 15.98,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 15.98,
+              "ImageURL": "AFTCO4.jpg"
+            },
+            {
+              "Ln#": 21,
+              "Part Number": "PFTCAP4",
+              "Description": "4\" PVC DWV CAP",
+              "price": 21.37,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 21.37,
+              "ImageURL": "PFTCAP4.jpg"
+            },
+            {
+              "Ln#": 22,
+              "Part Number": "AFTCAP4",
+              "Description": "4\" ABS DWV CAP",
+              "price": 10.77,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.77,
+              "ImageURL": "AFTCAP4.jpg"
+            },
+            {
+              "Ln#": 23,
+              "Part Number": "PFTC4",
+              "Description": "4\" PVC DWV COUPLING",
+              "price": 10.80,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.80,
+              "ImageURL": "PFTC4.jpg"
+            },
+            {
+              "Ln#": 24,
+              "Part Number": "AFTC4",
+              "Description": "4\" ABS DWV COUPLING",
+              "price": 7.27,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.27,
+              "ImageURL": "AFTC4.jpg"
+            },
+            {
+              "Ln#": 25,
+              "Part Number": "PFTY42",
+              "Description": "4\" X 2\" PVC DWV WYE",
+              "price": 26.03,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 26.03,
+              "ImageURL": "PFTY42.jpg"
+            },
+            {
+              "Ln#": 26,
+              "Part Number": "AFTY42",
+              "Description": "4\" X 2\" ABS DWV WYE",
+              "price": 20.11,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 20.11,
+              "ImageURL": "AFTY42.jpg"
+            },
+            {
+              "Ln#": 27,
+              "Part Number": "PFTY43",
+              "Description": "4\" X 3\" PVC DWV WYE",
+              "price": 35.31,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 35.31,
+              "ImageURL": "PFTY43.jpg"
+            },
+            {
+              "Ln#": 28,
+              "Part Number": "AFTY43",
+              "Description": "4\" X 3\" ABS DWV WYE",
+              "price": 27.17,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 27.17,
+              "ImageURL": "AFTY43.jpg"
+            },
+            {
+              "Ln#": 29,
+              "Part Number": "PFT43",
+              "Description": "3\" PVC DWV 45 ELL",
+              "price": 11.74,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.74,
+              "ImageURL": "PFT43.jpg"
+            },
+            {
+              "Ln#": 30,
+              "Part Number": "AFT43",
+              "Description": "3\" ABS DWV 45 ELL",
+              "price": 7.62,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.62,
+              "ImageURL": "AFT43.jpg"
+            },
+            {
+              "Ln#": 31,
+              "Part Number": "PFTCAP3",
+              "Description": "3\" PVC DWV CAP",
+              "price": 14.96,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 14.96,
+              "ImageURL": "PFTCAP3.jpg"
+            },
+            {
+              "Ln#": 32,
+              "Part Number": "AFTCAP3",
+              "Description": "3\" ABS DWV CAP",
+              "price": 11,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11,
+              "ImageURL": "AFTCAP3.jpg"
+            },
+            {
+              "Ln#": 33,
+              "Part Number": "PFT93",
+              "Description": "3\" PVC DWV 90 ELL",
+              "price": 13.10,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 13.10,
+              "ImageURL": "PFT93.jpg"
+            },
+            {
+              "Ln#": 34,
+              "Part Number": "AFT93",
+              "Description": "3\" ABS DWV 90 ELL",
+              "price": 8.72,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.72,
+              "ImageURL": "AFT93.jpg"
+            },
+            {
+              "Ln#": 35,
+              "Part Number": "PFTC3",
+              "Description": "3\" PVC DWV COUPLING",
+              "price": 6.36,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 6.36,
+              "ImageURL": "PFTC3.jpg"
+            },
+            {
+              "Ln#": 36,
+              "Part Number": "AFTC3",
+              "Description": "3\" ABS DWV COUPLING",
+              "price": 4.46,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.46,
+              "ImageURL": "AFTC3.jpg"
+            },
+            {
+              "Ln#": 37,
+              "Part Number": "PFTCO3",
+              "Description": "3\" PVC DWV FTG CLEANOUT ADAPTER",
+              "price": 11.56,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.56,
+              "ImageURL": "PFTCO3.jpg"
+            },
+            {
+              "Ln#": 38,
+              "Part Number": "AFTCO3",
+              "Description": "3\" ABS DWV FTG CLEANOUT ADAPTER",
+              "price": 8.54,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.54,
+              "ImageURL": "AFTCO3.jpg"
+            },
+            {
+              "Ln#": 39,
+              "Part Number": "PFTPT3",
+              "Description": "3\" PVC DWV P TRAP SOLVENT WELD",
+              "price": 43.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 43.21,
+              "ImageURL": "PFTPT3.jpg"
+            },
+            {
+              "Ln#": 40,
+              "Part Number": "AFTPT3",
+              "Description": "3\" ABS DWV P TRAP SOLVENT WELD",
+              "price": 40.43,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 40.43,
+              "ImageURL": "AFTPT3.jpg"
+            },
+            {
+              "Ln#": 41,
+              "Part Number": "PFTT3",
+              "Description": "3\" PVC DWV SAN TEE",
+              "price": 19.16,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 19.16,
+              "ImageURL": "PFTT3.jpg"
+            },
+            {
+              "Ln#": 42,
+              "Part Number": "AFTT3",
+              "Description": "3\" ABS DWV SAN TEE",
+              "price": 13.95,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 13.95,
+              "ImageURL": "AFTT3.jpg"
+            },
+            {
+              "Ln#": 43,
+              "Part Number": "PFTCOT3",
+              "Description": "3\" PVC DWV CLEANOUT / TEST TEE",
+              "price": 23.04,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 23.04,
+              "ImageURL": "PFTCOT3.jpg"
+            },
+            {
+              "Ln#": 44,
+              "Part Number": "AFTCOT3",
+              "Description": "3\" ABS DWV CLEANOUT / TEST TEE",
+              "price": 16.26,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 16.26,
+              "ImageURL": "AFTCOT3.jpg"
+            },
+            {
+              "Ln#": 45,
+              "Part Number": "PFTB32",
+              "Description": "3\" X 2\" PVC DWV SPGXHUB BUSHING",
+              "price": 5.84,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 5.84,
+              "ImageURL": "PFTB32.jpg"
+            },
+            {
+              "Ln#": 46,
+              "Part Number": "AFTB32",
+              "Description": "3\" X 2\" ABS DWV SPG*HUB BUSHING",
+              "price": 4.84,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.84,
+              "ImageURL": "AFTB32.jpg"
+            },
+            {
+              "Ln#": 47,
+              "Part Number": "PFTB3112",
+              "Description": "3\" X 1-1/2\" PVC DWV SPGXHUB BUSHING",
+              "price": 11.01,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.01,
+              "ImageURL": "PFTB3112.jpg"
+            },
+            {
+              "Ln#": 48,
+              "Part Number": "AFTB3112",
+              "Description": "3\" X 1-1/2\" ABS DWV SPG*HUB BUSHING",
+              "price": 7.74,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.74,
+              "ImageURL": "AFTB3112.jpg"
+            },
+            {
+              "Ln#": 49,
+              "Part Number": "PFTS43",
+              "Description": "3\" PVC DWV STREET 45 ELL",
+              "price": 11.12,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.12,
+              "ImageURL": "PFTS43.jpg"
+            },
+            {
+              "Ln#": 50,
+              "Part Number": "AFTS43",
+              "Description": "3\" ABS DWV STREET 45 ELL",
+              "price": 8.42,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.42,
+              "ImageURL": "AFTS43.jpg"
+            },
+            {
+              "Ln#": 51,
+              "Part Number": "PFT23",
+              "Description": "3\" PVC DWV 22-1/2 ELL",
+              "price": 11.52,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.52,
+              "ImageURL": "PFT23.jpg"
+            },
+            {
+              "Ln#": 52,
+              "Part Number": "AFT23",
+              "Description": "3\" ABS DWV 22-1/2 ELL",
+              "price": 8.8,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.8,
+              "ImageURL": "AFTB32.jpg"
+            },
+            {
+              "Ln#": 53,
+              "Part Number": "PFTY32",
+              "Description": "3\" X 2\" PVC DWV WYE",
+              "price": 17.99,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 17.99,
+              "ImageURL": "PFTY32.jpg"
+            },
+            {
+              "Ln#": 54,
+              "Part Number": "AFTY32",
+              "Description": "3\" X 2\" ABS DWV WYE",
+              "price": 10.86,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.86,
+              "ImageURL": "AFTY32.jpg"
+            },
+            {
+              "Ln#": 55,
+              "Part Number": "PFTY3112",
+              "Description": "3\" X 1-1/2\" PVC DWV WYE",
+              "price": 16.02,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 16.02,
+              "ImageURL": "PFTY3112.jpg"
+            },
+            {
+              "Ln#": 56,
+              "Part Number": "AFTY3112",
+              "Description": "3\" X 1-1/2\" ABS DWV WYE",
+              "price": 13.66,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 13.66,
+              "ImageURL": "AFTY3112.jpg"
+            },
+            {
+              "Ln#": 57,
+              "Part Number": "PFTT32",
+              "Description": "3\" X 2\" PVC DWV SAN TEE",
+              "price": 14.40,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 14.40,
+              "ImageURL": "PFTT32.jpg"
+            },
+            {
+              "Ln#": 58,
+              "Part Number": "AFTT32",
+              "Description": "3\" X 2\" ABS DWV SAN TEE",
+              "price": 11.10,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.10,
+              "ImageURL": "AFTT32.jpg"
+            },
+            {
+              "Ln#": 59,
+              "Part Number": "PFTDY32",
+              "Description": "3\" X 2\" PVC DWV DOUBLE WYE",
+              "price": 35.04,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 35.04,
+              "ImageURL": "PFTDY32.jpg"
+            },
+            {
+              "Ln#": 60,
+              "Part Number": "AFTDY32",
+              "Description": "3\" X 2\" ABS DWV DOUBLE WYE",
+              "price": 31.65,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 31.65,
+              "ImageURL": "AFTDY32.jpg"
+            },
+            {
+              "Ln#": 61,
+              "Part Number": "PFT42",
+              "Description": "2\" PVC DWV 45 ELL",
+              "price": 4.14,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.14,
+              "ImageURL": "PFT42.jpg"
+            },
+            {
+              "Ln#": 62,
+              "Part Number": "AFT42",
+              "Description": "2\" ABS DWV 45 ELL",
+              "price": 3.18,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.18,
+              "ImageURL": "AFT42.jpg"
+            },
+            {
+              "Ln#": 63,
+              "Part Number": "PFTY2",
+              "Description": "2\" PVC DWV WYE",
+              "price": 8.86,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.86,
+              "ImageURL": "PFTY2.jpg"
+            },
+            {
+              "Ln#": 64,
+              "Part Number": "AFTY2",
+              "Description": "2\" ABS DWV WYE",
+              "price": 7.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.21,
+              "ImageURL": "AFTY2.jpg"
+            },
+            {
+              "Ln#": 65,
+              "Part Number": "PFTCAP2",
+              "Description": "2\" PVC DWV CAP",
+              "price": 8.95,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.95,
+              "ImageURL": "PFTCAP2.jpg"
+            },
+            {
+              "Ln#": 66,
+              "Part Number": "AFTCAP2",
+              "Description": "2\" ABS DWV CAP",
+              "price": 5.32,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 5.32,
+              "ImageURL": "AFTCAP2.jpg"
+            },
+            {
+              "Ln#": 67,
+              "Part Number": "PFT92",
+              "Description": "2\" PVC DWV 90 ELL",
+              "price": 4.47,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.47,
+              "ImageURL": "PFT92.jpg"
+            },
+            {
+              "Ln#": 68,
+              "Part Number": "AFT92",
+              "Description": "2\" ABS DWV 90 ELL",
+              "price": 3.46,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.46,
+              "ImageURL": "AFT92.jpg"
+            },
+            {
+              "Ln#": 69,
+              "Part Number": "PFTC2",
+              "Description": "2\" PVC DWV COUPLING",
+              "price": 1.83,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 1.83,
+              "ImageURL": "PFTC2.jpg"
+            },
+            {
+              "Ln#": 70,
+              "Part Number": "AFTC2",
+              "Description": "2\" ABS DWV COUPLING",
+              "price": 1.45,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 1.45,
+              "ImageURL": "AFTC2.jpg"
+            },
+            {
+              "Ln#": 71,
+              "Part Number": "PFTCO2",
+              "Description": "2\" PVC DWV FTG CLEANOUT ADAPTER",
+              "price": 4.30,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.30,
+              "ImageURL": "PFTCO2.jpg"
+            },
+            {
+              "Ln#": 72,
+              "Part Number": "AFTCO2",
+              "Description": "2\" ABS DWV FTG CLEANOUT ADAPTER",
+              "price": 3.38,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.38,
+              "ImageURL": "AFTCO2.jpg"
+            },
+            {
+              "Ln#": 73,
+              "Part Number": "PFTPT2",
+              "Description": "2\" PVC DWV P-TRAP SOLVENT WELD",
+              "price": 12.78,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 12.78,
+              "ImageURL": "PFTPT2.jpg"
+            },
+            {
+              "Ln#": 74,
+              "Part Number": "AFTPT2",
+              "Description": "2\" ABS DWV P-TRAP SOLVENT WELD",
+              "price": 9.39,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 9.39,
+              "ImageURL": "AFTPT2.jpg"
+            },
+            {
+              "Ln#": 75,
+              "Part Number": "PFTT2",
+              "Description": "2\" PVC DWV SAN TEE",
+              "price": 7.26,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.26,
+              "ImageURL": "PFTT2.jpg"
+            },
+            {
+              "Ln#": 76,
+              "Part Number": "AFTT2",
+              "Description": "2\" ABS DWV SAN TEE",
+              "price": 5.13,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 5.13,
+              "ImageURL": "AFTT2.jpg"
+            },
+            {
+              "Ln#": 77,
+              "Part Number": "PFTCOT2",
+              "Description": "2\" PVC DWV CLEANOUT / TEST TEE",
+              "price": 11.89,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.89,
+              "ImageURL": "PFTCOT2.jpg"
+            },
+            {
+              "Ln#": 78,
+              "Part Number": "AFTCOT2",
+              "Description": "2\" ABS DWV CLEANOUT / TEST TEE",
+              "price": 8.69,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.69,
+              "ImageURL": "AFTCOT2.jpg"
+            },
+            {
+              "Ln#": 79,
+              "Part Number": "PFTB2112",
+              "Description": "2\" X 1-1/2\" PVC DWV SPGXHUB BUSHING",
+              "price": 2.31,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.31,
+              "ImageURL": "PFTB2112.jpg"
+            },
+            {
+              "Ln#": 80,
+              "Part Number": "AFTB2112",
+              "Description": "2\" X 1-1/2\" ABS DWV SPG*HUB BUSHING",
+              "price": 1.77,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 1.77,
+              "ImageURL": "AFTB2112"
+            },
+            {
+              "Ln#": 81,
+              "Part Number": "PFTS42",
+              "Description": "2\" PVC DWV STREET 45 ELL",
+              "price": 4.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.21,
+              "ImageURL": "PFTS42.jpg"
+            },
+            {
+              "Ln#": 82,
+              "Part Number": "AFTS42",
+              "Description": "2\" ABS DWV STREET 45 ELL",
+              "price": 3.40,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.40,
+              "ImageURL": "AFTS42.jpg"
+            },
+            {
+              "Ln#": 83,
+              "Part Number": "PFT22",
+              "Description": "2\" PVC DWV 22-1/2 ELL",
+              "price": 4.66,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.66,
+              "ImageURL": "PFT22.jpg"
+            },
+            {
+              "Ln#": 84,
+              "Part Number": "AFT22",
+              "Description": "2\" ABS DWV 22-1/2 ELL",
+              "price": 3.42,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.42,
+              "ImageURL": "AFT22.jpg"
+            },
+            {
+              "Ln#": 85,
+              "Part Number": "PFTY2112",
+              "Description": "2\" X 1-1/2\" PVC DWV WYE",
+              "price": 10.84,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.84,
+              "ImageURL": "PFTY2112.jpg"
+            },
+            {
+              "Ln#": 86,
+              "Part Number": "AFTY2112",
+              "Description": "2\" X 1-1/2\" ABS DWV WYE",
+              "price": 8.18,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 8.18,
+              "ImageURL": "AFTY2112.jpg"
+            },
+            {
+              "Ln#": 87,
+              "Part Number": "PFTT2112",
+              "Description": "2\" X 1-1/2\" PVC DWV SAN TEE",
+              "price": 6.42,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 6.42,
+              "ImageURL": "PFTT2112.jpg"
+            },
+            {
+              "Ln#": 88,
+              "Part Number": "AFTT2112",
+              "Description": "2\" X 1-1/2\" ABS DWV SAN TEE",
+              "price": 4.45,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.45,
+              "ImageURL": "AFTT2112.jpg"
+            },
+            {
+              "Ln#": 89,
+              "Part Number": "PFTT2112112",
+              "Description": "2\" X 1-1/2\" X 1-1/2\" PVC DWV SAN TEE",
+              "price": 6.39,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 6.39,
+              "ImageURL": "PFTT2112112.jpg"
+            },
+            {
+              "Ln#": 90,
+              "Part Number": "AFTT2112112",
+              "Description": "2\" X 1-1/2\" X 1-1/2\" ABS DWV SAN TEE",
+              "price": 4.56,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.56, 
+              "ImageURL": "AFTT2112112.jpg"
+            },
+            {
+              "Ln#": 91,
+              "Part Number": "PFTDT2112",
+              "Description": "2\" X 1-1/2\" PVC DWV CROSS / DBL SAN TEE",
+              "price": 11.54,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.54,
+              "ImageURL": "PFTDT2112.jpg"
+            },
+            {
+              "Ln#": 92,
+              "Part Number": "AFTDT2112",
+              "Description": "2\" X 1-1/2\" ABS DWV CROSS / DBL SAN TEE",
+              "price": 9.02,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 9.02,
+              "ImageURL": "AFTDT2112.jpg"
+            },
+            {
+              "Ln#": 93,
+              "Part Number": "PFT4112",
+              "Description": "1-1/2\" PVC DWV 45 ELL",
+              "price": 2.77,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.77,
+              "ImageURL": "PFT4112.jpg"
+            },
+            {
+              "Ln#": 94,
+              "Part Number": "AFT4112",
+              "Description": "1-1/2\" ABS DWV 45 ELL",
+              "price": 2.06,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.06,
+              "ImageURL": "AFT4112.jpg"
+            },
+            {
+              "Ln#": 95,
+              "Part Number": "PFTY112",
+              "Description": "1-1/2\" PVC DWV WYE",
+              "price": 9.00,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 9.00,
+              "ImageURL": "PFTY112.jpg"
+            },
+            {
+              "Ln#": 96,
+              "Part Number": "AFTY112",
+              "Description": "1-1/2\" ABS DWV WYE",
+              "price": 5.51,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 5.51,
+              "ImageURL": "AFTY112.jpg"
+            },
+            {
+              "Ln#": 97,
+              "Part Number": "PFT9112",
+              "Description": "1-1/2\" PVC DWV 90 ELL",
+              "price": 2.84,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.84,
+              "ImageURL": "PFT9112.jpg"
+            },
+            {
+              "Ln#": 98,
+              "Part Number": "AFT9112",
+              "Description": "1-1/2\" ABS DWV 90 ELL",
+              "price": 2.25,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.25,
+              "ImageURL": "AFT9112.jpg"
+            },
+            {
+              "Ln#": 99,
+              "Part Number": "PFTCAP112",
+              "Description": "1-1/2\" PVC DWV CAP",
+              "price": 5.36,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 5.36,
+              "ImageURL": "PFTCAP112.jpg"
+            },
+            {
+              "Ln#": 100,
+              "Part Number": "AFTCAP112",
+              "Description": "1-1/2\" ABS DWV CAP",
+              "price": 3.85,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.85,
+              "ImageURL": "AFTCAP112.jpg"
+            },
+            {
+              "Ln#": 101,
+              "Part Number": "PFTC112",
+              "Description": "1-1/2\" PVC DWV COUPLING",
+              "price": 1.33,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 1.33,
+              "ImageURL": "PFTC112.jpg"
+            },
+            {
+              "Ln#": 102,
+              "Part Number": "AFTC112",
+              "Description": "1-1/2\" ABS DWV COUPLING",
+              "price": 1.16,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 1.16,
+              "ImageURL": "AFTC112.jpg"
+            },
+            {
+              "Ln#": 103,
+              "Part Number": "PFTCO112",
+              "Description": "1-1/2\" PVC DWV FTG CLEANOUT ADAPTER",
+              "price": 3.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.21,
+              "ImageURL": "PFTCO112.jpg"
+            },
+            {
+              "Ln#": 104,
+              "Part Number": "AFTCO112",
+              "Description": "1-1/2\" ABS DWV FTG CLEANOUT ADAPTER",
+              "price": 2.44,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.44,
+              "ImageURL": "AFTCO112.jpg"
+            },
+            {
+              "Ln#": 105,
+              "Part Number": "PFTPT112",
+              "Description": "1-1/2\" PVC DWV P TRAP SOLVENT WELD",
+              "price": 10.51,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.51,
+              "ImageURL": "PFTPT112.jpg"
+            },
+            {
+              "Ln#": 106,
+              "Part Number": "AFTPT112",
+              "Description": "1-1/2\" ABS DWV P TRAP SOLVENT WELD",
+              "price": 7.76,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.76,
+              "ImageURL": "AFTPT112.jpg"
+            },
+            {
+              "Ln#": 107,
+              "Part Number": "PFTT112",
+              "Description": "1-1/2\" PVC DWV SAN TEE",
+              "price": 4.93,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 4.93,
+              "ImageURL": "PFTT112.jpg"
+            },
+            {
+              "Ln#": 108,
+              "Part Number": "AFTT112",
+              "Description": "1-1/2\" ABS DWV SAN TEE",
+              "price": 3.32,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 3.32,
+              "ImageURL": "AFTT112.jpg"
+            },
+            {
+              "Ln#": 109,
+              "Part Number": "PFTCOT112",
+              "Description": "1-1/2\" PVC DWV CLEANOUT / TEST TEE",
+              "price": 10.17,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 10.17,
+              "ImageURL": "PFTCOT112.jpg"
+            },
+            {
+              "Ln#": 110,
+              "Part Number": "AFTCOT112",
+              "Description": "1-1/2\" ABS DWV CLEANOUT / TEST TEE",
+              "price": 7.93,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 7.93,
+              "ImageURL": "AFTCOT112.jpg"
+            },
+            {
+              "Ln#": 111,
+              "Part Number": "PFTS4112",
+              "Description": "1-1/2\" PVC DWV STREET 45 ELL",
+              "price": 2.66,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.66,
+              "ImageURL": "PFTS4112.jpg"
+            },
+            {
+              "Ln#": 112,
+              "Part Number": "AFTS4112",
+              "Description": "1-1/2\" ABS DWV STREET 45 ELL",
+              "price": 2.56,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 2.56,
+              "ImageURL": "AFTS4112.jpg"
+            },
+            {
+              "Ln#": 113,
+              "Part Number": "PHWGY4",
+              "Description": "4\" SDR26 WYE GASKETED",
+              "price": 60.94,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 60.94,
+              "ImageURL": "PHWGY4.jpg"
+            },
+            {
+              "Ln#": 114,
+              "Part Number": "PHWG44",
+              "Description": "4\" SDR26 45 ELL GASKETED",
+              "price": 26.92,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 26.92,
+              "ImageURL": "PHWG44.jpg"
+            },
+            {
+              "Ln#": 115,
+              "Part Number": "PHWG24",
+              "Description": "4\" SDR26 22 1/2 ELL GASKETED",
+              "price": 35.73,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 35.73,
+              "ImageURL": "PHWG24.jpg"
+            },
+            {
+              "Ln#": 116,
+              "Part Number": "PHWGTWCO4",
+              "Description": "4\" SDR26 2WAY CLEANOUT GASKETED",
+              "price": 56.83,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 56.83,
+              "ImageURL": "PHWGTWCO4.jpg"
+            },
+            {
+              "Ln#": 117,
+              "Part Number": "PHWGC4",
+              "Description": "4\" SDR26 STOP COUPLING GASKETED",
+              "price": 31.35,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 31.35,
+              "ImageURL": "PHWGC4.jpg"
+            },
+            {
+              "Ln#": 118,
+              "Part Number": "WCPY4",
+              "Description": "4\" WYE GASKETED SWR C900 PVC",
+              "price": 263.68,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 263.68,
+              "ImageURL": "WCPY4.jpg"
+            },
+            {
+              "Ln#": 119,
+              "Part Number": "WCP44",
+              "Description": "4\" 45 ELL GASKETED SWR C900 PVC",
+              "price": 184.87,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 184.87,
+              "ImageURL": "WCP44.jpg"
+            },
+            {
+              "Ln#": 120,
+              "Part Number": "WCP24",
+              "Description": "4\" 22 1/2 ELL GASKETED SWR C900 PVC",
+              "price": 189.34,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 189.34,
+              "ImageURL": "WCP24.jpg"
+            },
+            {
+              "Ln#": 121,
+              "Part Number": "MIS5644ARC",
+              "Description": "4\" CI/PL*CI/PL COUPLING W/SR MISSION",
+              "price": 36.93,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 36.93,
+              "ImageURL": "MIS5644ARC.jpg"
+            },
+            {
+              "Ln#": 122,
+              "Part Number": "MIS5144ARC",
+              "Description": "4\" DI/AC*CI/PL COUPLING W/SR MISSION",
+              "price": 54.48,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 54.48,
+              "ImageURL": "MIS5144ARC.jpg"
+            },
+            {
+              "Ln#": 123,
+              "Part Number": "MIS0244ARC",
+              "Description": "4\" CLAY*CI/PL COUPLING W/SR MISSION",
+              "price": 54.32,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 54.32,
+              "ImageURL": "MIS0244ARC.jpg"
+            },
+            {
+              "Ln#": 124,
+              "Part Number": "MIS0166ARC",
+              "Description": "6\" CLAY*CLAY COUPLING W/SR MISSION",
+              "price": 56.35,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 56.35,
+              "ImageURL": "MIS0166ARC.jpg"
+            },
+            {
+              "Ln#": 125,
+              "Part Number": "PFTTTWCO4",
+              "Description": "4\" PVC DWV TEXAS TWO WAY CLEANOUT",
+              "price": 88.66,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 88.66,
+              "ImageURL": "PFTTTWCO4.jpg"
+            },
+            {
+              "Ln#": 126,
+              "Part Number": "MSCBSWYE64",
+              "Description": "6\" X 4\" CLAY BAND SEAL WYE MISSION",
+              "price": 161.54,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 161.54,
+              "ImageURL": "MSCBSWYE64.jpg"
+            },
+            {
+              "Ln#": 127,
+              "Part Number": "CHCF8RS",
+              "Description": "F8 LID CONCRETE SEWER W/PLASTIC RING",
+              "price": 23.08,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 23.08,
+              "ImageURL": "CHCF8RS.jpg"
+            },
+            {
+              "Ln#": 128,
+              "Part Number": "CHCB24BOX",
+              "Description": "B24 BOX CONCRETE 20-3/4*19-1/4",
+              "price": 72.40,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 72.40,
+              "ImageURL": "CHCB24BOX.jpg"
+            },
+            {
+              "Ln#": 129,
+              "Part Number": "COPLHARD114",
+              "Description": "11/4*20 TYPE L HARD COPPER PIPE",
+              "price": 163.00,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 163.00,
+              "ImageURL": "COPLHARD114.jpg"
+            },
+            {
+              "Ln#": 130,
+              "Part Number": "COPLHARD1",
+              "Description": "1*20 TYPE L HARD COPPER PIPE",
+              "price": 117.79,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 117.79,
+              "ImageURL": "COPLHARD1.jpg"
+            },
+            {
+              "Ln#": 131,
+              "Part Number": "COPLHARD34",
+              "Description": "3/4*20 TYPE L HARD COPPER PIPE",
+              "price": 81.91,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 81.91,
+              "ImageURL": "COPLHARD34.jpg"
+            },
+            {
+              "Ln#": 132,
+              "Part Number": "COPLHARD12",
+              "Description": "1/2*20 TYPE L HARD COPPER PIPE",
+              "price": 50.15,
+              "quantity": 20,
+              "Unit": "CF",
+              "extendedprice": 50.15,
+              "ImageURL": "COPLHARD12.jpg"
+            },
+            {
+              "Ln#": 133,
+              "Part Number": "CFT9114",
+              "Description": "1-1/4\" COPPER 90 ELBOW",
+              "price": 11.63,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 11.63,
+              "ImageURL": "CFT9114.jpg"
+            },
+            {
+              "Ln#": 134,
+              "Part Number": "CFTT1141",
+              "Description": "1-1/4\" X 1 C X C X C TEE",
+              "price": 26.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 26.21,
+              "ImageURL": "CFTT1141.jpg"
+            },
+            {
+              "Ln#": 135,
+              "Part Number": "CFTT11411",
+              "Description": "1-1/4\" X 1\" X 1\" C X C X C TEE",
+              "price": 33.66,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 33.66,
+              "ImageURL": "CFTT11411.jpg"
+            },
+            {
+              "Ln#": 136,
+              "Part Number": "CFTT11412",
+              "Description": "1-1/4\" X 1/2\" C X C X C TEE",
+              "price": 26.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 26.21,
+              "ImageURL": "CFTT11412.jpg"
+            },
+            {
+              "Ln#": 137,
+              "Part Number": "CFTT11434",
+              "Description": "1-1/4\" X 3/4\" C X C X C TEE",
+              "price": 26.21,
+              "quantity": 1,
+              "Unit": "EA",
+              "extendedprice": 26.21,
+              "ImageURL": "CFTT11434.jpg"
+            },
+            {
+              "Ln#": 138,
+                "Part Number": "CFTT11434114",
+                "Description": "1-1/4\" X 3/4\" X 1-1/4\" C X C X C TEE",
+                "price": 33.66,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 33.66,
+                "ImageURL": "CFTT11434114.jpg"
+              },
+              {
+                "Ln#": 139,
+                "Part Number": "CFTT114",
+                "Description": "1-1/4\" CXCXC TEE (1-3/8 OD)",
+                "price": 24.28,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 24.28,
+                "ImageURL": "CFTT114.jpg"
+              },
+              {
+                "Ln#": 140,
+                "Part Number": "CFTC114",
+                "Description": "1-1/4\" COPPER COUPLING (1 3/8 OD)",
+                "price": 7.38,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.38,
+                "ImageURL": "CFTC114.jpg"
+              },
+              {
+                "Ln#": 141,
+                "Part Number": "CFTMA114",
+                "Description": "1-1/4\" COPPER X MIP ADAPTER",
+                "price": 18.38,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.38,
+                "ImageURL": "CFTMA114.jpg"
+              },
+              {
+                "Ln#": 142,
+                "Part Number": "CFTFA114",
+                "Description": "1-1/4\" COPPER X FIP ADAPTER",
+                "price": 21.54,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 21.54,
+                "ImageURL": "CFTFA114.jpg"
+              },
+              {
+                "Ln#": 143,
+                "Part Number": "RED5049AB114",
+                "Description": "1-1/4\" CXC LF FULL PORT 2PC BRS BALL VALVE",
+                "price": 40.72,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 40.72,
+                "ImageURL": "RED5049AB114.jpg"
+              },
+              {
+                "Ln#": 144,
+                "Part Number": "CFT91",
+                "Description": "1\" COPPER 90 ELBOW",
+                "price": 7.84,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.84,
+                "ImageURL": "CFT91.jpg"
+              },
+              {
+                "Ln#": 145,
+                "Part Number": "CFTT134",
+                "Description": "1\" X 3/4\" C X C X C TEE",
+                "price": 18.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.00,
+                "ImageURL": "CFTT134.jpg"
+              },
+              {
+                "Ln#": 146,
+                "Part Number": "CFTT1143434",
+                "Description": "1-1/4\" X 3/4\" X 3/4\" C X C X C TEE",
+                "price": 33.66,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 33.66,
+                "ImageURL": "CFTT1143434.jpg"
+              },
+              {
+                "Ln#": 147,
+                "Part Number": "CFTT1X12",
+                "Description": "1\" X 1/2\" C X C X C TEE",
+                "price": 18.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.00,
+                "ImageURL": "CFTT1X12.jpg"
+              },
+              {
+                "Ln#": 148,
+                "Part Number": "CFTT1",
+                "Description": "1\" CXCXC TEE (1-1/8 OD)",
+                "price": 17.60,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 17.60,
+                "ImageURL": "CFTT1.jpg"
+              },
+              {
+                "Ln#": 149,
+                "Part Number": "CFTC1",
+                "Description": "1\" COPPER COUPLING (1-1/8 OD)",
+                "price": 4.30,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.30,
+                "ImageURL": "CFTC1.jpg"
+              },
+              {
+                "Ln#": 150,
+                "Part Number": "CFTMA1",
+                "Description": "1\" COPPER X MIP ADAPTER",
+                "price": 12.79,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.79,
+                "ImageURL": "CFTMA1.jpg"
+              },
+              {
+                "Ln#": 151,
+                "Part Number": "CFTFA1",
+                "Description": "1\" COPPER X FIP ADAPTER",
+                "price": 14.85,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.85,
+                "ImageURL": "CFTFA1.jpg"
+              },
+              {
+                "Ln#": 152,
+                "Part Number": "RED5049AB1",
+                "Description": "1\" CXC LF FULL PORT 2PC BRS BALL VALVE R&W",
+                "price": 27.52,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 27.52,
+                "ImageURL": "RED5049AB1.jpg"
+              },
+              {
+                "Ln#": 153,
+                "Part Number": "CFT934",
+                "Description": "3/4\" COPPER 90 ELBOW",
+                "price": 3.20,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.20,
+                "ImageURL": "CFT934.jpg"
+              },
+              {
+                "Ln#": 154,
+                "Part Number": "CFTT3412",
+                "Description": "3/4\" X 1/2\" C X C X C TEE",
+                "price": 5.59,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.59,
+                "ImageURL": "CFTT3412.jpg"
+              },
+              {
+                "Ln#": 155,
+                "Part Number": "CFTT341212",
+                "Description": "3/4\" X 1/2\" X 1/2\" C X C X C TEE",
+                "price": 6.86,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.86,
+                "ImageURL": "CFTT341212.jpg"
+              },
+              {
+                "Ln#": 156,
+                "Part Number": "CFTT341234",
+                "Description": "3/4\" X 1/2\" X 3/4\" C X C X C TEE",
+                "price": 6.86,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.86,
+                "ImageURL": "CFTT341234.jpg"
+              },
+              {
+                "Ln#": 157,
+                "Part Number": "CFTT1234",
+                "Description": "1/2\" X 3/4\" C X C X C TEE",
+                "price": 11.14,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.14,
+                "ImageURL": "CFTT1234.jpg"
+              },
+              {
+                "Ln#": 158,
+                "Part Number": "ARH353",
+                "Description": "3/4\" FIP BRZ HOSE BIBB LF ARROWHEAD",
+                "price": 17.16,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 17.16,
+                "ImageURL": "ARH353.jpg"
+              },
+              {
+                "Ln#": 159,
+                "Part Number": "ARH351LK",
+                "Description": "3/4\" MIP L/K BRZ HOSE BIBB LF ARROWHEAD",
+                "price": 20.13,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 20.13,
+                "ImageURL": "ARH351LK.jpg"
+              },
+              {
+                "Ln#": 160,
+                "Part Number": "CFTT34",
+                "Description": "3/4\" CXCXC TEE (7/8 OD)",
+                "price": 5.87,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.87,
+                "ImageURL": "CFTT34.jpg"
+              },
+              {
+                "Ln#": 161,
+                "Part Number": "CFTC34",
+                "Description": "3/4\" COPPER COUPLING (7/8 OD)",
+                "price": 2.17,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.17,
+                "ImageURL": "CFTC34.jpg"
+              },
+              {
+                "Ln#": 162,
+                "Part Number": "CFTMA34",
+                "Description": "3/4\" COPPER X MIP ADAPTER",
+                "price": 5.01,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.01,
+                "ImageURL": "CFTMA34.jpg"
+              },
+              {
+                "Ln#": 163,
+                "Part Number": "CFTFA34",
+                "Description": "3/4\" COPPER X FIP ADAPTER",
+                "price": 6.50,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.50,
+                "ImageURL": "CFTFA34.jpg"
+              },
+              {
+                "Ln#": 164,
+                "Part Number": "RED5049AB34",
+                "Description": "3/4\" CXC LF FULL PORT 2PC BRS BALL VALVE R&W",
+                "price": 18.19,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.19,
+                "ImageURL": "RED5049AB34.jpg"
+              },
+              {
+                "Ln#": 165,
+                "Part Number": "CFT912",
+                "Description": "1/2\" COPPER 90 ELBOW",
+                "price": 1.45,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1.45,
+                "ImageURL": "CFT912.jpg"
+              },
+              {
+                "Ln#": 166,
+                "Part Number": "CFTT12",
+                "Description": "1/2\" CXCXC TEE (5/8 OD)",
+                "price": 2.44,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.44,
+                "ImageURL": "CFTT12.jpg"
+              },
+              {
+                "Ln#": 167,
+                "Part Number": "CFTC12",
+                "Description": "1/2\" COPPER COUPLING (5/8 OD)",
+                "price": 1.09,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1.09,
+                "ImageURL": "CFTC12.jpg"
+              },
+              {
+                "Ln#": 168,
+                "Part Number": "CFTMA12",
+                "Description": "1/2\" COPPER X MIP ADAPTER",
+                "price": 2.99,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.99,
+                "ImageURL": "CFTMA12.jpg"
+              },
+              {
+                "Ln#": 169,
+                "Part Number": "CFTFA12",
+                "Description": "1/2\" COPPER X FIP ADAPTER",
+                "price": 4.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.74,
+                "ImageURL": "CFTFA12.jpg"
+              },
+              {
+                "Ln#": 170,
+                "Part Number": "CFTDE912",
+                "Description": "1/2\" LF CAST COPPER DROP EAR 90 ELBOW",
+                "price": 14.49,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.49,
+                "ImageURL": "CFTDE912.jpg"
+              },
+              {
+                "Ln#": 171,
+                "Part Number": "CFTCAP12",
+                "Description": "1/2\" COPPER CAP (5/8 OD)",
+                "price": 1.05,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1.05,
+                "ImageURL": "CFTCAP12.jpg"
+              },
+              {
+                "Ln#": 172,
+                "Part Number": "RED5049AB12",
+                "Description": "1/2\" CXC LF FULL PORT 2PC BRS BALL VALVE R&W",
+                "price": 12.31,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.31,
+                "ImageURL": "RED5049AB12.jpg"
+              },
+              {
+                "Ln#": 173,
+                "Part Number": "ARH253",
+                "Description": "1/2\" FIP BRZ HOSE BIBB LF ARROWHEAD",
+                "price": 16.94,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 16.94,
+                "ImageURL": "ARH253.jpg"
+              },
+              {
+                "Ln#": 174,
+                "Part Number": "ARH253LK",
+                "Description": "1/2\" FIP L/K BRZ HOSE BIBB LF ARROWHEAD",
+                "price": 19.88,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 19.88,
+                "ImageURL": "ARH253LK.jpg"
+              },
+              {
+                "Ln#": 175,
+                "Part Number": "PPR9114",
+                "Description": "77032 1-1/4\" 90 ELL PROPRESS COPPER",
+                "price": 17.59,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 17.59,
+                "ImageURL": "PPR9114.jpg"
+              },
+              {
+                "Ln#": 176,
+                "Part Number": "PPRT1141",
+                "Description": "77447 1-1/4\" X 1\" TEE PROPRESS COPPER",
+                "price": 22.29,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.29,
+                "ImageURL": "PPRT1141.jpg"
+              },
+              {
+                "Ln#": 177,
+                "Part Number": "PPRT11411",
+                "Description": "14568 1-1/4\" X 1\" X 1\" TEE PROPRESS COPPER",
+                "price": 25.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 25.70,
+                "ImageURL": "PPRT11411.jpg"
+              },
+              {
+                "Ln#": 178,
+                "Part Number": "PPRT11412",
+                "Description": "94757 1-1/4\" X 1/2\" TEE PROPRESS COPPER",
+                "price": 19.65,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 19.65,
+                "ImageURL": "PPRT11412.jpg"
+              },
+              {
+                "Ln#": 179,
+                "Part Number": "PPRT11434",
+                "Description": "77452 1-1/4\" X 3/4\" TEE PROPRESS COPPER",
+                "price": 20.67,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 20.67,
+                "ImageURL": "PPRT11434.jpg"
+              },
+              {
+                "Ln#": 180,
+                "Part Number": "PPRT11434114",
+                "Description": "22248 1-1/4\" X 3/4\" X 1-1/4\" TEE PROPRESS COPPER",
+                "price": 37.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 37.74,
+                "ImageURL": "PPRT11434114.jpg"
+              },
+              {
+                "Ln#": 181,
+                "Part Number": "PPRT114",
+                "Description": "77442 1-1/4\" TEE PROPRESS COPPER",
+                "price": 22.58,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.58,
+                "ImageURL": "PPRT114.jpg"
+              },
+              {
+                "Ln#": 182,
+                "Part Number": "PPRC114",
+                "Description": "78062 1-1/4\" COUPLING PROPRESS COPPER",
+                "price": 9.45,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.45,
+                "ImageURL": "PPRC114.jpg"
+              },
+              {
+                "Ln#": 183,
+                "Part Number": "PPRMA114",
+                "Description": "79260 1-1/4\" COP X MIP ADAPTER PROPRESS",
+                "price": 22.23,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.23,
+                "ImageURL": "PPRMA114.jpg"
+              },
+              {
+                "Ln#": 184,
+                "Part Number": "PPRFA114",
+                "Description": "79350 1-1/4\" LF COP X FIP ADAPTER PROPRESS",
+                "price": 26.43,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 26.43,
+                "ImageURL": "PPRFA114.jpg"
+              },
+              {
+                "Ln#": 185,
+                "Part Number": "RED5520AB114",
+                "Description": "1-1/4\" PRESS LF FULL PORT 2PC BRS BV R&W",
+                "price": 55.45,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 55.45,
+                "ImageURL": "RED5520AB114.jpg"
+              },
+              {
+                "Ln#": 186,
+                "Part Number": "PPR91",
+                "Description": "77027 1\" 90 ELL PROPRESS COPPER",
+                "price": 8.71,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 8.71,
+                "ImageURL": "PPR91.jpg"
+              },
+              {
+                "Ln#": 187,
+                "Part Number": "PPRT134",
+                "Description": "77437 1\" X 3/4\" TEE PROPRESS COPPER",
+                "price": 15.05,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 15.05,
+                "ImageURL": "PPRT134.jpg"
+              },
+              {
+                "Ln#": 188,
+                "Part Number": "PPRT13434",
+                "Description": "77422 1\" X 3/4\" X 3/4\" TEE PROPRESS COPPER",
+                "price": 21.27,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 21.27,
+                "ImageURL": "PPRT13434.jpg"
+              },
+              {
+                "Ln#": 189,
+                "Part Number": "PPRT1X12",
+                "Description": "77432 1\" X 1/2\" TEE PROPRESS COPPER",
+                "price": 15.42,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 15.42,
+                "ImageURL": "PPRT1X12.jpg"
+              },
+              {
+                "Ln#": 190,
+                "Part Number": "PPRT1",
+                "Description": "77412 1\" TEE PROPRESS COPPER",
+                "price": 13.23,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.23,
+                "ImageURL": "PPRT1.jpg"
+              },
+              {
+                "Ln#": 191,
+                "Part Number": "PPRC1",
+                "Description": "78057 1\" COUPLING PROPRESS COPPER",
+                "price": 7.40,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.40,
+                "ImageURL": "PPRC1.jpg"
+              },
+              {
+                "Ln#": 192,
+                "Part Number": "PPRMA1",
+                "Description": "79245 1\" COP X MIP ADAPTER PROPRESS",
+                "price": 10.47,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 10.47,
+                "ImageURL": "PPRMA1.jpg"
+              },
+              {
+                "Ln#": 193,
+                "Part Number": "PPRFA1",
+                "Description": "79330 1\" LF COP X FIP ADAPTER PROPRESS",
+                "price": 11.64,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.64,
+                "ImageURL": "PPRFA1.jpg"
+              },
+              {
+                "Ln#": 194,
+                "Part Number": "RED5520AB1",
+                "Description": "1\" PRESS LF FULL PORT 2PC BRS BV R&W",
+                "price": 38.83,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 38.83,
+                "ImageURL": "RED5520AB1.jpg"
+              },
+              {
+                "Ln#": 195,
+                "Part Number": "PPR934",
+                "Description": "77022 3/4\" 90 ELL PROPRESS COPPER",
+                "price": 4.37,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.37,
+                "ImageURL": "PPR934.jpg"
+              },
+              {
+                "Ln#": 196,
+                "Part Number": "PPRT343412",
+                "Description": "77402 3/4\" X 1/2\" TEE PROPRESS COPPER",
+                "price": 6.31,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.31,
+                "ImageURL": "PPRT343412.jpg"
+              },
+              {
+                "Ln#": 197,
+                "Part Number": "PPRT341212",
+                "Description": "77392 3/4\" X 1/2\" X 1/2\" TEE PROPRESS COPPER",
+                "price": 11.56,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.56,
+                "ImageURL": "PPRT341212.jpg"
+              },
+              {
+                "Ln#": 198,
+                "Part Number": "PPRT341234",
+                "Description": "77397 3/4\" X 1/2\" X 3/4\" TEE PROPRESS COPPER",
+                "price": 12.46,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.46,
+                "ImageURL": "PPRT341234.jpg"
+              },
+              {
+                "Ln#": 199,
+                "Part Number": "PPRT121234",
+                "Description": "77382 1/2\" X 3/4\" TEE PROPRESS COPPER",
+                "price": 14.75,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.75,
+                "ImageURL": "PPRT121234.jpg"
+              },
+              {
+                "Ln#": 200,
+                "Part Number": "PPRT34",
+                "Description": "77387 3/4\" TEE PROPRESS COPPER",
+                "price": 7.22,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.22,
+                "ImageURL": "PPRT34.jpg"
+              },
+              {
+                "Ln#": 201,
+                "Part Number": "PPRC34",
+                "Description": "78052 3/4\" COUPLING PROPRESS COPPER",
+                "price": 3.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.70,
+                "ImageURL": "PPRC34.jpg"
+              },
+              {
+                "Ln#": 202,
+                "Part Number": "PPRMA34",
+                "Description": "79230 3/4\" COP X MIP ADAPTER PROPRESS",
+                "price": 5.61,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.61,
+                "ImageURL": "PPRMA34.jpg"
+              },
+              {
+                "Ln#": 203,
+                "Part Number": "PPRFA34",
+                "Description": "79315 3/4\" LF COP X FIP ADAPTER PROPRESS",
+                "price": 6.08,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.08,
+                "ImageURL": "PPRFA34.jpg"
+              },
+              {
+                "Ln#": 204,
+                "Part Number": "RED5520AB34",
+                "Description": "3/4\" PRESS LF FULL PORT 2PC BRS BV R&W",
+                "price": 30.32,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 30.32,
+                "ImageURL": "RED5520AB34.jpg"
+              },
+              {
+                "Ln#": 205,
+                "Part Number": "PPR912",
+                "Description": "77317 1/2\" 90 ELL PROPRESS COPPER",
+                "price": 2.71,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.71,
+                "ImageURL": "PPR912.jpg"
+              },
+              {
+                "Ln#": 206,
+                "Part Number": "PPRT12",
+                "Description": "77377 1/2\" TEE PROPRESS COPPER",
+                "price": 4.12,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.12,
+                "ImageURL": "PPRT12.jpg"
+              },
+              {
+                "Ln#": 207,
+                "Part Number": "PPRC12",
+                "Description": "78047 1/2\" COUPLING PROPRESS COPPER",
+                "price": 2.44,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.44,
+                "ImageURL": "PPRC12.jpg"
+              },
+              {
+                "Ln#": 208,
+                "Part Number": "PPRMA12",
+                "Description": "79215 1/2\" COP X MIP ADAPTER PROPRESS",
+                "price": 3.12,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.12,
+                "ImageURL": "PPRMA12.jpg"
+              },
+              {
+                "Ln#": 209,
+                "Part Number": "PPRFA12",
+                "Description": "79300 1/2\" LF COP X FIP ADAPTER PROPRESS",
+                "price": 3.91,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.91,
+                "ImageURL": "PPRFA12.jpg"
+              },
+              {
+                "Ln#": 210,
+                "Part Number": "PPRDEF912",
+                "Description": "79190 1/2\" LF COP X FIP DE 90 ELL PROPRESS",
+                "price": 13.39,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.39,
+                "ImageURL": "PPRDEF912.jpg"
+              },
+              {
+                "Ln#": 211,
+                "Part Number": "PPRCAP12",
+                "Description": "77712 1/2\" CAP PROPRESS COPPER",
+                "price": 5.17,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.17,
+                "ImageURL": "PPRCAP12.jpg"
+              },
+              {
+                "Ln#": 212,
+                "Part Number": "RED5044AB12",
+                "Description": "1/2\" IPS LF FULL PORT 2PC BRS BALL VALVE R&W",
+                "price": 12.31,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.31,
+                "ImageURL": "RED5044AB12.jpg"
+              },
+              {
+                "Ln#": 213,
+                "Part Number": "GRUUP1518B7TLC",
+                "Description": "1/25HP 115/1 BRZ 3/4 SWT CIRC W/ TIMER, LC",
+                "price": 471.98,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 471.98,
+                "ImageURL": "GRUUP1518B7TLC.jpg"
+              },
+              {
+                "Ln#": 214,
+                "Part Number": "NOM5812L",
+                "Description": "5/8\"ID X 1/2\" SELF SEAL PE FOAM PIPE",
+                "price": 4.14,
+                "quantity": 6,
+                "Unit": "CF",
+                "extendedprice": 4.14,
+                "ImageURL": "NOM5812L.jpg"
+              },
+              {
+                "Ln#": 215,
+                "Part Number": "RED237AB12",
+                "Description": "1/2\" CXC LF BRS SWING CHECK VALVE R&W",
+                "price": 22.47,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.47,
+                "ImageURL": "RED237AB12.jpg"
+              },
+              {
+                "Ln#": 216,
+                "Part Number": "RED236AB12",
+                "Description": "1/2\" IPS LF BRS SWING CHECK VALVE R&W",
+                "price": 22.47,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.47,
+                "ImageURL": "RED236AB12.jpg"
+              },
+              {
+                "Ln#": 217,
+                "Part Number": "NOM11812",
+                "Description": "1 1/8\"ID X 1/2\" SEMI SLIT PE FOAM PIPE",
+                "price": 4.65,
+                "quantity": 6,
+                "Unit": "CF",
+                "extendedprice": 4.65,
+                "ImageURL": "NOM11812.jpg"
+              },
+              {
+                "Ln#": 218,
+                "Part Number": "NOM7812",
+                "Description": "7/8\"ID X 1/2\" SEMI SLIT PE FOAM PIPE INSULATION",
+                "price": 58,
+                "quantity": 6,
+                "Unit": "CF",
+                "extendedprice": 3.48,
+                "ImageURL": "NOM7812.jpg"
+              },
+              {
+                "Ln#": 219,
+                "Part Number": "NOM5812",
+                "Description": "5/8\"ID X 1/2\" SEMI SLIT PE FOAM PIPE INSULATION",
+                "price": 3.83,
+                "quantity": 6,
+                "Unit": "CF",
+                "extendedprice": 3.83,
+                "ImageURL": "NOM5812.jpg"
+              },
+              {
+                "Ln#": 220,
+                "Part Number": "STPGALVTC2",
+                "Description": "2\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 173.15,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 173.15,
+                "ImageURL": "STPGALVTC2.jpg"
+              },
+              {
+                "Ln#": 221,
+                "Part Number": "STPGALVTC112",
+                "Description": "1-1/2\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 128.68,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 128.68,
+                "ImageURL": "STPGALVTC112.jpg"
+              },
+              {
+                "Ln#": 222,
+                "Part Number": "STPGALVTC114",
+                "Description": "1-1/4\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 107.40,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 107.40,
+                "ImageURL": "STPGALVTC114.jpg"
+              },
+              {
+                "Ln#": 223,
+                "Part Number": "STPGALVTC1",
+                "Description": "1\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 79.47,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 79.47,
+                "ImageURL": "STPGALVTC1.jpg"
+              },
+              {
+                "Ln#": 224,
+                "Part Number": "STPGALVTC34",
+                "Description": "3/4\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 53.46,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 53.46,
+                "ImageURL": "STPGALVTC34.jpg"
+              },
+              {
+                "Ln#": 225,
+                "Part Number": "STPGALVTC12",
+                "Description": "1/2\" GALV T&C A53A SCH40 STEEL PIPE",
+                "price": 40.22,
+                "quantity": 21,
+                "Unit": "CF",
+                "extendedprice": 40.22,
+                "ImageURL": "STPGALVTC12.jpg"
+              },
+              {
+                "Ln#": 226,
+                "Part Number": "TRA3425",
+                "Description": "3/4\" X 25' COIL TRACPIPE",
+                "price": 213.30,
+                "quantity": 1,
+                "Unit": "RL",
+                "extendedprice": 213.30,
+                "ImageURL": "TRA3425.jpg"
+              },
+              {
+                "Ln#": 227,
+                "Part Number": "TRA1225",
+                "Description": "1/2\" X 25' COIL TRACPIPE",
+                "price": 166.30,
+                "quantity": 1,
+                "Unit": "RL",
+                "extendedprice": 166.30,
+                "ImageURL": "TRA1225.jpg"
+              },
+              {
+                "Ln#": 228,
+                "Part Number": "MGI92",
+                "Description": "2\" 90 ELL GALV MALL 150#",
+                "price": 22.03,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.03,
+                "ImageURL": "MGI92.jpg"
+              },
+              {
+                "Ln#": 229,
+                "Part Number": "MGIT2",
+                "Description": "2\" TEE GALV MALL 150#",
+                "price": 31.71,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 31.71,
+                "ImageURL": "MGIT2.jpg"
+              },
+              {
+                "Ln#": 230,
+                "Part Number": "MGIC2",
+                "Description": "2\" COUPLING GALV MALL 150#",
+                "price": 17.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 17.74,
+                "ImageURL": "MGIC2.jpg"
+              },
+              {
+                "Ln#": 231,
+                "Part Number": "MGI9112",
+                "Description": "1-1/2\" 90 ELL GALV MALL 150#",
+                "price": 13.23,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.23,
+                "ImageURL": "MGI9112.jpg"
+              },
+              {
+                "Ln#": 232,
+                "Part Number": "MGIT112",
+                "Description": "1-1/2\" TEE GALV MALL 150#",
+                "price": 20.04,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 20.04,
+                "ImageURL": "MGIT112.jpg"
+              },
+              {
+                "Ln#": 233,
+                "Part Number": "MGIC112",
+                "Description": "1-1/2\" COUPLING GALV MALL 150#",
+                "price": 12.15,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.15,
+                "ImageURL": "MGIC112.jpg"
+              },
+              {
+                "Ln#": 234,
+                "Part Number": "MGI9114",
+                "Description": "1-1/4\" 90 ELL GALV MALL 150#",
+                "price": 10.03,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 10.03,
+                "ImageURL": "MGI9114.jpg"
+              },
+              {
+                "Ln#": 235,
+                "Part Number": "MGIT114",
+                "Description": "1-1/4\" TEE GALV MALL 150#",
+                "price": 16.03,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 16.03,
+                "ImageURL": "MGIT114.jpg"
+              },
+              {
+                "Ln#": 236,
+                "Part Number": "MGIC114",
+                "Description": "1-1/4\" COUPLING GALV MALL 150#",
+                "price": 10.67,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 10.67,
+                "ImageURL": "MGIC114.jpg"
+              },
+              {
+                "Ln#": 237,
+                "Part Number": "MGI91",
+                "Description": "1\" 90 ELL GALV MALL 150#",
+                "price": 6.15,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.15,
+                "ImageURL": "MGI91.jpg"
+              },
+              {
+                "Ln#": 238,
+                "Part Number": "MGIT1",
+                "Description": "1\" TEE GALV MALL 150#",
+                "price": 9.64,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.64,
+                "ImageURL": "MGIT1.jpg"
+              },
+              {
+                "Ln#": 239,
+                "Part Number": "MGIC1",
+                "Description": "1\" COUPLING GALV MALL 150#",
+                "price": 7.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.74,
+                "ImageURL": "MGIC1.jpg"
+              },
+              {
+                "Ln#": 240,
+                "Part Number": "MGI934",
+                "Description": "3/4\" 90 ELL GALV MALL 150#",
+                "price": 3.49,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.49,
+                "ImageURL": "MGI934.jpg"
+              },
+              {
+                "Ln#": 241,
+                "Part Number": "MGIT34",
+                "Description": "3/4\" TEE GALV MALL 150#",
+                "price": 5.90,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.90,
+                "ImageURL": "MGIT34.jpg"
+              },
+              {
+                "Ln#": 242,
+                "Part Number": "MGIC34",
+                "Description": "3/4\" COUPLING GALV MALL 150#",
+                "price": 4.71,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.71,
+                "ImageURL": "MGIC34.jpg"
+              },
+              {
+                "Ln#": 243,
+                "Part Number": "MGI912",
+                "Description": "1/2\" 90 ELL GALV MALL 150#",
+                "price": 2.90,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.90,
+                "ImageURL": "MGI912.jpg"
+              },
+              {
+                "Ln#": 244,
+                "Part Number": "MGIT12",
+                "Description": "1/2\" TEE GALV MALL 150#",
+                "price": 3.51,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.51,
+                "ImageURL": "MGIT12.jpg"
+              },
+              {
+                "Ln#": 245,
+                "Part Number": "MGIC12",
+                "Description": "1/2\" COUPLING GALV MALL 150#",
+                "price": 4.37,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.37,
+                "ImageURL": "MGIC12.jpg"
+              },
+              {
+                "Ln#": 246,
+                "Part Number": "MGICAP1",
+                "Description": "1\" CAP GALV MALL 150#",
+                "price": 4.78,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.78,
+                "ImageURL": "MGICAP1.jpg"
+              },
+              {
+                "Ln#": 247,
+                "Part Number": "ASW186148",
+                "Description": "0943 ALL NG 1IN GAS VALVE",
+                "price": 217.18,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 217.18,
+                "ImageURL": "ASW186148.jpg"
+              },
+              {
+                "Ln#": 248,
+                "Part Number": "MGIT134",
+                "Description": "1\" X 3/4\" TEE GALV MALL 150#",
+                "price": 12.01,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.01,
+                "ImageURL": "MGIT134.jpg"
+              },
+              {
+                "Ln#": 249,
+                "Part Number": "MGICAP12",
+                "Description": "1/2\" CAP GALV MALL 150#",
+                "price": 3.02,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.02,
+                "ImageURL": "MGICAP12.jpg"
+              },
+              {
+                "Ln#": 250,
+                "Part Number": "MGIU12",
+                "Description": "1/2\" UNION GALV MALL 150#",
+                "price": 13.94,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.94,
+                "ImageURL": "MGIU12.jpg"
+              },
+              {
+                "Ln#": 251,
+                "Part Number": "PACEGFC1224FXM",
+                "Description": "1/2ID*24 GAS FLEX 3/4FIP*3/4MIP LV",
+                "price": 16.16,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 16.16,
+                "ImageURL": "PACEGFC1224FXM.jpg"
+              },
+              {
+                "Ln#": 252,
+                "Part Number": "BRCTBV88",
+                "Description": "1/2\" FLARE * 1/2\" FIP GAS VALVE",
+                "price": 13.81,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.81,
+                "ImageURL": "BRCTBV88.jpg"
+              },
+              {
+                "Ln#": 253,
+                "Part Number": "RINRE199IN",
+                "Description": "199K NG INT NON COND TANKLESS RINNAI",
+                "price": 1121.06,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1121.06,
+                "ImageURL": "RINRE199IN.jpg"
+              },
+              {
+                "Ln#": 254,
+                "Part Number": "RINRE199EN",
+                "Description": "199K NG EXT NON COND TANKLESS RINNAI",
+                "price": 1121.06,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1121.06,
+                "ImageURL": "RINRE199EN.jpg"
+              },
+              {
+                "Ln#": 255,
+                "Part Number": "RUDLN30NT",
+                "Description": "PROG29-30U RU63 EC1 NG 30 GAL TALL ULN 16",
+                "price": 778.8,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 778.8,
+                "ImageURL": "RUDLN30NT.jpg"
+              },
+              {
+                "Ln#": 256,
+                "Part Number": "RUDLN40NT",
+                "Description": "PROG40-38U RU62 EC1TT NG 40 GAL TALL ULN",
+                "price": 701.8,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 701.8,
+                "ImageURL": "RUDLN40NT.jpg"
+              },
+              {
+                "Ln#": 257,
+                "Part Number": "RUDLN50NT",
+                "Description": "PROG50-38U RU60 EC1TT 50 GAL TALL ULN",
+                "price": 770,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 770,
+                "ImageURL": "RUDLN50NT.jpg"
+              },
+              {
+                "Ln#": 258,
+                "Part Number": "RUDPLR75N",
+                "Description": "PROG75-75U RU EC1 75 GAL ULN 26 1/4 X 64",
+                "price": 1591.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1591.70,
+                "ImageURL": "RUDPLR75N.jpg"
+              },
+              {
+                "Ln#": 259,
+                "Part Number": "ASWN40ES",
+                "Description": "ENS40T-6 40 GAL ELEC SHORT 240V 20 1/4X49 1/7",
+                "price": 544.50,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 544.50,
+                "ImageURL": "ASWN40ES.jpg"
+              },
+              {
+                "Ln#": 260,
+                "Part Number": "ASWN50ETT",
+                "Description": "TOP TP ENS50H-6 50 GAL ELEC TALL 240V 20 1/4",
+                "price": 601.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 601.70,
+                "ImageURL": "ASWN50ETT.jpg"
+              },
+              {
+                "Ln#": 261,
+                "Part Number": "ASWNLN40NT12",
+                "Description": "GN40T1-3-12 40 GAL NG TALL ULN 12 YEAR",
+                "price": 940.50,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 940.50,
+                "ImageURL": "ASWNLN40NT12.jpg"
+              },
+              {
+                "Ln#": 262,
+                "Part Number": "ASWNLN50NT12",
+                "Description": "GN50T1-3-12 50 GAL NG TALL ULN 12 YEAR",
+                "price": 982.30,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 982.30,
+                "ImageURL": "ASWNLN50NT12.jpg"
+              },
+              {
+                "Ln#": 263,
+                "Part Number": "MGIU34",
+                "Description": "3/4\" UNION GALV MALL 150#",
+                "price": 15.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 15.70,
+                "ImageURL": "MGIU34.jpg"
+              },
+              {
+                "Ln#": 264,
+                "Part Number": "RED5044AB34",
+                "Description": "3/4\" IPS LF FULL PORT 2PC BRS BALL VALVE R&W",
+                "price": 18.19,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.19,
+                "ImageURL": "RED5044AB34.jpg"
+              },
+              {
+                "Ln#": 265,
+                "Part Number": "PACEGFC3418FXM34",
+                "Description": "3/4\" ID*18 GAS FLEX 3/4FIP*3/4MIP LV",
+                "price": 31.60,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 31.60,
+                "ImageURL": "PACEGFC3418FXM34.jpg"
+              },
+              {
+                "Ln#": 266,
+                "Part Number": "BRCWB0024",
+                "Description": "3/4\" FIP*3/4 FIP*24 COP WATER FLEX CONN",
+                "price": 18.38,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.38,
+                "ImageURL": "BRCWB0024.jpg"
+              },
+              {
+                "Ln#": 267,
+                "Part Number": "COPM34",
+                "Description": "3/4\" X 20' TYPE M COPPER PIPE",
+                "price": 60.04,
+                "quantity": 20,
+                "Unit": "CF",
+                "extendedprice": 60.04,
+                "ImageURL": "COPM34.jpg"
+              },
+              {
+                "Ln#": 268,
+                "Part Number": "EXP2",
+                "Description": "2.0 GAL POTABLE THERMAL EXP TANK",
+                "price": 46.20,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 46.20,
+                "ImageURL": "EXP2.jpg"
+              },
+              {
+                "Ln#": 269,
+                "Part Number": "SMI24ST",
+                "Description": "24 WATER HEATER PAN TAPERED SMITTY",
+                "price": 39.50,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 39.50,
+                "ImageURL": "SMI24ST.jpg"
+              },
+              {
+                "Ln#": 270,
+                "Part Number": "RED3400RAB34",
+                "Description": "3/4\" FIP X SWT 200K BTUH TANKLESS COMPACT",
+                "price": 88,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 88,
+                "ImageURL": "RED3400RAB34.jpg"
+              },
+              {
+                "Ln#": 271,
+                "Part Number": "HUBQS50POLY",
+                "Description": "WTR HTR STRAP UP TO 80 GAL POLY BAG",
+                "price": 16.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 16.00,
+                "ImageURL": "HUBQS50POLY.jpg"
+              },
+              {
+                "Ln#": 272,
+                "Part Number": "PAS1230",
+                "Description": "1/2\" CWT SURE GRIP FLANGE PASCO Escutcheon",
+                "price": 0.27,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 0.27,
+                "ImageURL": "PAS1230.jpg"
+              },
+              {
+                "Ln#": 273,
+                "Part Number": "FLUB6F20",
+                "Description": "3/8\" COMP X 3/8 COMP X 20 SS FLEX CONN",
+                "price": 7.80,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.80,
+                "ImageURL": "FLUB6F20.jpg"
+              },
+              {
+                "Ln#": 274,
+                "Part Number": "FLUB1T16",
+                "Description": "3/8\" COMP X 7/8\" BC X 16 SS TOILET CONN",
+                "price": 4.90,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.90,
+                "ImageURL": "FLUB1T16.jpg"
+              },
+              {
+                "Ln#": 275,
+                "Part Number": "HER90210",
+                "Description": "3 OR 4 STD WAX JOHNI-RING HERCULES",
+                "price": 2.08,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.08,
+                "ImageURL": "HER90210.jpg"
+              },
+              {
+                "Ln#": 276,
+                "Part Number": "TUBPT12",
+                "Description": "1-1/2\" 17 GA P TRAP W/ GJ & BN",
+                "price": 20.78,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 20.78,
+                "ImageURL": "TUBPT12.jpg"
+              },
+              {
+                "Ln#": 277,
+                "Part Number": "CFDFTSJA112",
+                "Description": "1-1/2\" COPPER DWV FTG X SLIP JT ADAPTER",
+                "price": 33.43,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 33.43,
+                "ImageURL": "CFDFTSJA112.jpg"
+              },
+              {
+                "Ln#": 278,
+                "Part Number": "DAPKWIKSEAL6OZWHT",
+                "Description": "6 OZ TUB & TILE WHITE ADHESIVE CAULK DAP",
+                "price": 5.14,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.14,
+                "ImageURL": "DAPKWIKSEAL6OZWHT.jpg"
+              },
+              {
+                "Ln#": 279,
+                "Part Number": "DAPKWIKSEALPLUSCLR",
+                "Description": "6 OZ TUB & TILE CLEAR ADHESIVE CAULK DAP",
+                "price": 8.43,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 8.43,
+                "ImageURL": "DAPKWIKSEALPLUSCLR.jpg"
+              },
+              {
+                "Ln#": 280,
+                "Part Number": "FLUB6W48",
+                "Description": "3/8 COMP X 48 SS DISHWASHER CONN",
+                "price": 13.02,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.02,
+                "ImageURL": "FLUB6W48.jpg"
+              },
+              {
+                "Ln#": 281,
+                "Part Number": "BRCKTCR09X",
+                "Description": "5/8OD*1/4OD CP 1/4 TURN ANGLE STOP",
+                "price": 24.14,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 24.14,
+                "ImageURL": "BRCKTCR09X.jpg"
+              },
+              {
+                "Ln#": 282,
+                "Part Number": "BRCKTCR14X",
+                "Description": "5/8OD*3/8OD CP 1/4 TURN STRAIGHT STOP",
+                "price": 19.43,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 19.43,
+                "ImageURL": "BRCKTCR14X.jpg"
+              },
+              {
+                "Ln#": 283,
+                "Part Number": "BRCR1701DVX",
+                "Description": "1/2\" FIP X 3/8\" OD X 3/8\" OD RB DUAL HDL ANGLE STOP",
+                "price": 41.51,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 41.51,
+                "ImageURL": "BRCR1701DVX.jpg"
+              },
+              {
+                "Ln#": 284,
+                "Part Number": "LAR43807",
+                "Description": "BRASS T X B BOLT KIT",
+                "price": 9.22,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.22,
+                "ImageURL": "LAR43807.jpg"
+              },
+              {
+                "Ln#": 285,
+                "Part Number": "TUBCD4P",
+                "Description": "HEAVY PLASTIC AIR GAP W/ CP TOP",
+                "price": 14.32,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.32,
+                "ImageURL": "TUBCD4P.jpg"
+              },
+              {
+                "Ln#": 286,
+                "Part Number": "HAV093175",
+                "Description": "7/8\" DISHWASHER HOSE (PER FT)",
+                "price": 2.71,
+                "quantity": 1,
+                "Unit": "FT",
+                "extendedprice": 2.71,
+                "ImageURL": "HAV093175.jpg"
+              },
+              {
+                "Ln#": 287,
+                "Part Number": "TTT4T25662",
+                "Description": "P-TRAP 1-1/2\" PB",
+                "price": 165.83,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 165.83,
+                "ImageURL": "TTT4T25662.jpg"
+              },
+              {
+                "Ln#": 288,
+                "Part Number": "TUBAPT",
+                "Description": "11/2\" ABS P TRAP W/ 11/4 WASHER BAGGED",
+                "price": 1.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1.74,
+                "ImageURL": "TUBAPT.jpg"
+              },
+              {
+                "Ln#": 289,
+                "Part Number": "OAT39016",
+                "Description": "1-1/2\" X 2\" PVC SURE-VENT OATEY",
+                "price": 25.27,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 25.27,
+                "ImageURL": "OAT39016.jpg"
+              },
+              {
+                "Ln#": 290,
+                "Part Number": "TUBBS1",
+                "Description": "3-1/2\" S/S DUO BASKET STRAINER DEEP DEPTH",
+                "price": 25.28,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 25.28,
+                "ImageURL": "TUBBS1.jpg"
+              },
+              {
+                "Ln#": 291,
+                "Part Number": "ISEB1",
+                "Description": "1/3HP DISPOSAL W/ CORD BADGER ISE",
+                "price": 130.73,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 130.73,
+                "ImageURL": "ISEB1.jpg"
+              },
+              {
+                "Ln#": 292,
+                "Part Number": "ISEB5",
+                "Description": "1/2HP DISPOSAL W/ CORD BADGER ISE",
+                "price": 129.80,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 129.80,
+                "ImageURL": "ISEB5.jpg"
+              },
+              {
+                "Ln#": 293,
+                "Part Number": "ISECNTR333",
+                "Description": "3/4HP SS DISPOSAL W/ CORD CONTRACTOR",
+                "price": 203.5,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 203.5,
+                "ImageURL": "ISECNTR333.jpg"
+              },
+              {
+                "Ln#": 294,
+                "Part Number": "ISEPRO1000",
+                "Description": "1HP DISPOSAL W/ CORD ADVANCED ISE",
+                "price": 406.81,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 406.81,
+                "ImageURL": "ISEPRO1000.jpg"
+              },
+              {
+                "Ln#": 295,
+                "Part Number": "FLUPRO45",
+                "Description": "ULTRA QUIET FILL VALVE W/ PLASTIC SHANK",
+                "price": 21.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 21.74,
+                "ImageURL": "FLUPRO45.jpg"
+              },
+              {
+                "Ln#": 296,
+                "Part Number": "LAV2001BP",
+                "Description": "PREMIUM UNIV RED RUBBER FLAPPER KORKY",
+                "price": 7.90,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.90,
+                "ImageURL": "LAV2001BP.jpg"
+              },
+              {
+                "Ln#": 297,
+                "Part Number": "LAV3060BP",
+                "Description": "UNIVERSAL 3\" FLAPPER KORKY",
+                "price": 29.64,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 29.64,
+                "ImageURL": "LAV3060BP.jpg"
+              },
+              {
+                "Ln#": 298,
+                "Part Number": "LAV2022BP",
+                "Description": "3\" TOTO POWER GRAVITY BLUE RUBBER FLAPPER",
+                "price": 23.19,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 23.19,
+                "ImageURL": "LAV2022BP.jpg"
+              },
+              {
+                "Ln#": 299,
+                "Part Number": "LAV58BP",
+                "Description": "KOHLER RED RUBBER FLUSH BALL FLAPPER",
+                "price": 11.37,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.37,
+                "ImageURL": "LAV58BP.jpg"
+              },
+              {
+                "Ln#": 300,
+                "Part Number": "FLUPRO57",
+                "Description": "FLUSH VALVE WITH AJUSTABLE FLAPPER",
+                "price": 12.70,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 12.70,
+                "ImageURL": "FLUPRO57.jpg"
+              },
+              {
+                "Ln#": 301,
+                "Part Number": "TTT4T2472",
+                "Description": "POP UP ASSY POL BRASS",
+                "price": 89.10,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 89.10,
+                "ImageURL": "TTT4T2472.jpg"
+              },
+              {
+                "Ln#": 302,
+                "Part Number": "TUBATP11212",
+                "Description": "1-1/2\" X 12\" ABS FLG TAILPIECE",
+                "price": 1.50,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1.50,
+                "ImageURL": "TUBATP11212.jpg"
+              },
+              {
+                "Ln#": 303,
+                "Part Number": "TTT4T3672",
+                "Description": "TAILPIECE FLANGED 1-1/2\" OD X 8\" PB",
+                "price": 51.15,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 51.15,
+                "ImageURL": "4T3672.jpg"
+              },
+              {
+                "Ln#": 304,
+                "Part Number": "FLUPRO61",
+                "Description": "CP TRIP LEVER FLUIDMASTER",
+                "price": 9.15,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.15,
+                "ImageURL": "FLUPRO61.jpg"
+              },
+              {
+                "Ln#": 305,
+                "Part Number": "IPS705PT",
+                "Description": "1PT 705 CLEAR MED BODY PVC CEMENT WELD ON",
+                "price": 26.92,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 26.92,
+                "ImageURL": "IPS705PT.jpg"
+              },
+              {
+                "Ln#": 306,
+                "Part Number": "OAT38530",
+                "Description": "WMOB SWT PLASTIC WHT L/C/R OUT OATEY",
+                "price": 40.53,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 40.53,
+                "ImageURL": "OAT38530.jpg"
+              },
+              {
+                "Ln#": 307,
+                "Part Number": "TTT4T178X2",
+                "Description": "16\" W&O FULL KIT PB LIFT & TURN TTT",
+                "price": 231,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 231,
+                "ImageURL": "TTT4T178X2.jpg"
+              },
+              {
+                "Ln#": 308,
+                "Part Number": "REC5PT",
+                "Description": "25431 PIPE COMPOUND PINT RECTORSEAL 5",
+                "price": 35.10,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 35.10,
+                "ImageURL": "REC5PT.jpg"
+              },
+              {
+                "Ln#": 309,
+                "Part Number": "MIR70885",
+                "Description": "70885 1/2\" X 1429 BLUE MONSTER THREAD SEAL",
+                "price": 6.17,
+                "quantity": 1,
+                "Unit": "RL",
+                "extendedprice": 6.17,
+                "ImageURL": "MIR70885.jpg"
+              },
+              {
+                "Ln#": 310,
+                "Part Number": "TFTGY12260",
+                "Description": "1/2\" X 260 YELLOW GAS UL TEFLON TAPE",
+                "price": 4.08,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.08,
+                "ImageURL": "TFTGY12260.jpg"
+              },
+              {
+                "Ln#": 311,
+                "Part Number": "NIPBR12CLOSE",
+                "Description": "1/2\" X CLOSE BRASS NIPPLE",
+                "price": 3.36,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.36,
+                "ImageURL": "NIPBR12CLOSE.jpg"
+              },
+              {
+                "Ln#": 312,
+                "Part Number": "NIPBR12112",
+                "Description": "1/2\" X 1-1/2\" BRASS NIPPLE",
+                "price": 3.88,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 3.88,
+                "ImageURL": "NIPBR12112.jpg"
+              },
+              {
+                "Ln#": 313,
+                "Part Number": "NIPBR122",
+                "Description": "1/2\" X 2\" BRASS NIPPLE",
+                "price": 4.44,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 4.44,
+                "ImageURL": "NIPBR122.jpg"
+              },
+              {
+                "Ln#": 314,
+                "Part Number": "NIPBR12212",
+                "Description": "1/2\" X 2-1/2\" BRASS NIPPLE",
+                "price": 5.36,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.36,
+                "ImageURL": "NIPBR12212.jpg"
+              },
+              {
+                "Ln#": 315,
+                "Part Number": "NIPBR123",
+                "Description": "1/2\" X 3\" BRASS NIPPLE",
+                "price": 6.10,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.10,
+                "ImageURL": "NIPBR123.jpg"
+              },
+              {
+                "Ln#": 316,
+                "Part Number": "NIPBR12312",
+                "Description": "1/2\" X 3-1/2\" BRASS NIPPLE",
+                "price": 6.90,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.90,
+                "ImageURL": "NIPBR12312.jpg"
+              },
+              {
+                "Ln#": 317,
+                "Part Number": "NIPBR12X4",
+                "Description": "1/2\" X 4\" BRASS NIPPLE",
+                "price": 7.74,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.74,
+                "ImageURL": "NIPBR12X4.jpg"
+              },
+              {
+                "Ln#": 318,
+                "Part Number": "NIPBR126",
+                "Description": "1/2\" X 6\" BRASS NIPPLE",
+                "price": 11.41,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.41,
+                "ImageURL": "NIPBR126.jpg"
+              },
+              {
+                "Ln#": 319,
+                "Part Number": "HUB266",
+                "Description": "1/2\" TWO HOLE ISOLATION STANDARD CLAMP",
+                "price": 2.80,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2.80,
+                "ImageURL": "HUB266.jpg"
+              },
+              {
+                "Ln#": 320,
+                "Part Number": "FLU12IM60",
+                "Description": "1/4\" COMP X 60 SS ICE MAKER CONN",
+                "price": 16.04,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 16.04,
+                "ImageURL": "FLU12IM60.jpg"
+              },
+              {
+                "Ln#": 321,
+                "Part Number": "HUB221",
+                "Description": "1/2\" SUSPENSION CLAMP HOLDRITE",
+                "price": 0.34,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 0.34,
+                "ImageURL": "HUB221.jpg"
+              },
+              {
+                "Ln#": 322,
+                "Part Number": "OAT42150",
+                "Description": "2\" BRS NC SHOWER DRAIN W/ 4 RD SS TOP OATEY",
+                "price": 31.72,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 31.72,
+                "ImageURL": "OAT42150.jpg"
+              },
+              {
+                "Ln#": 323,
+                "Part Number": "AFTOCFMR43",
+                "Description": "4\" X 3\" ABS OFFSET CLOSET FLANGE METAL RING",
+                "price": 29.87,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 29.87,
+                "ImageURL": "AFTOCFMR43.jpg"
+              },
+              {
+                "Ln#": 324,
+                "Part Number": "FCOFLASH112",
+                "Description": "1-1/2\" STANDARD BASE ROOF FLASHING",
+                "price": 13.94,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.94,
+                "ImageURL": "FCOFLASH112.jpg"
+              },
+              {
+                "Ln#": 325,
+                "Part Number": "NDS275",
+                "Description": "2\" ABS BACKWATER VALVE NDS\r\n**2\" abs back water valve**",
+                "price": 105.91,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 105.91,
+                "ImageURL": "NDS275.jpg"
+              },
+              {
+                "Ln#": 326,
+                "Description": "Bradford 30 gallon water heater",
+                "price": 715.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 715.00,
+                "ImageURL": "Bradford 30 gallon water heater.jpeg"
+              },
+              {
+                "Ln#": 327,
+                "Description": "Bradford 40 gallon water heater",
+                "price": 715.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 715.00,
+                "ImageURL": "Bradford 40 gallon water heater.jpeg"
+              },
+              {
+                "Ln#": 328,
+                "Description": "Bradford 50 gallon water heater",
+                "price": 750.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 750.00,
+                "ImageURL": "Bradford 50 gallon water heater.jpeg"
+              },
+              {
+                "Ln#": 329,
+                "Description": "American Standard 50 gallon water heater",
+                "price": 985.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 985.00,
+                "ImageURL": "American Standard 50 gallon water heater.png"
+              },
+              {
+                "Ln#": 330,
+                "Description": "Rinnai Tankless RSC199IN water heater",
+                "price": 1600.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1600.00,
+                "ImageURL": "RSC199IN.jpeg"
+              },
+              {
+                "Ln#": 331,
+                "Description": "Rinnai Tankless CU199IN water heater (Commercial)",
+                "price": 1430.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1430.00,
+                "ImageURL": "CU199IN.jpeg"
+              },
+              {
+                "Ln#": 332,
+                "Description": "B9 Concrete Box",
+                "price": 49.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 49.00,
+                "ImageURL": "B9 Concrete Box.jpeg"
+              },
+              {
+                "Ln#": 333,
+                "Description": "MR02-44ARC Band",
+                "price": 60.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 60.00,
+                "ImageURL": "MR02-44ARC Band.png"
+              },
+              {
+                "Ln#": 334,
+                "Description": "Zoeller M53 Sump Pump 1/3HP",
+                "price": 290.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 290.00,
+                "ImageURL": "Zoeller M53 Sump Pump.jpeg"
+              },
+              {
+                "Ln#": 335,
+                "Description": "Zoeller 98-001 Sump Pump 1/2HP",
+                "price": 375.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 375.00,
+                "ImageURL": "Zoeller 98 Sump Pump.jpeg"
+              },
+              {
+                "Ln#": 336,
+                "Description": "Zoeller BN270 Sump Pump 1HP",
+                "price": 770.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 770.00,
+                "ImageURL": "Zoeller BN270 Sump Pump 1HP.jpeg"
+              },
+              {
+                "Ln#": 337,
+                "Description": "Liberty Grinder Pump P382PRG101SD-2 1HP",
+                "price": 1890.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1890.00,
+                "ImageURL": "Liberty Grinder Pump P382PRG101SD-2 1HP.jpeg"
+              },
+              {
+                "Ln#": 338,
+                "Description": "Zoeller Grinder Pump BN803 1/2HP",
+                "price": 1265.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1265.00,
+                "ImageURL": "Zoeller Grinder Pump BN803.jpeg"
+              },
+              {
+                "Ln#": 339,
+                "Description": "Zoeller Grinder Pump BN807 1HP",
+                "price": 1430.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1430.00,
+                "ImageURL": "Zoeller Grinder Pump BN807 1HP.jpeg"
+              },
+              {
+                "Ln#": 340,
+                "Description": "Grundfos 595916 Hot Water Recirculating Pump",
+                "price": 320.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 320.00,
+                "ImageURL": "Grundfos 595916 Hot Water Recirculating Pump.jpeg"
+              },
+              {
+                "Ln#": 341,
+                "Description": "Expansion Tank 2 Gallon",
+                "price": 65.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 65.00,
+                "ImageURL": "Expansion Tank 2 Gallon.jpeg"
+              },
+              {
+                "Ln#": 342,
+                "Description": "Expansion Tank 4.5 Gallon",
+                "price": 115.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 115.00,
+                "ImageURL": "Expansion Tank 4.5 Gallon.jpeg"
+              },
+              {
+                "Ln#": 343,
+                "Description": "Expansion Tank 10 Gallon",
+                "price": 230.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 230.00,
+                "ImageURL": "Expansion Tank 10 Gallon.jpeg"
+              },
+              {
+                "Ln#": 344,
+                "Description": "Expnsion Tank 20 Gallon",
+                "price": 335.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 335.00,
+                "ImageURL": "Expnsion Tank 20 Gallon.jpeg"
+              },
+              {
+                "Ln#": 345,
+                "Description": "Ice Maker Box with Hammer Arrestor",
+                "price": 45.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 45.00,
+                "ImageURL": "Ice Maker Box with Hammer Arrestor.jpeg"
+              },
+              {
+                "Ln#": 346,
+                "Description": "Ice Maker Box/ Sweat 1-2",
+                "price": 30.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 30.00,
+                "ImageURL": "Ice Maker Box Sweat.jpeg"
+              },
+              {
+                "Ln#": 347,
+                "Description": "Ice Maker Box with Shut Off Valve Lead Free",
+                "price": 30.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 30.00,
+                "ImageURL": "Ice Maker Box with Shut Off Valve Lead Free.jpeg"
+              },
+              {
+                "Ln#": 348,
+                "Description": "Ice Maker Box PVC",
+                "price": 25.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 25.00,
+                "ImageURL": "Ice Maker Box PVC.jpeg"
+              },
+              {
+                "Ln#": 349,
+                "Description": "Asphalt",
+                "price": 137.00,
+                "quantity": 1,
+                "Unit": "TON",
+                "extendedprice": 137.00,
+                "ImageURL": "Asphalt.jpeg"
+              },
+              {
+                "Ln#": 350,
+                "Description": "Concrete 50lb",
+                "price": 7.30,
+                "quantity": 50,
+                "Unit": "lbs",
+                "extendedprice": 7.30,
+                "ImageURL": "Concrete 50lb.jpeg"
+              },
+              {
+                "Ln#": 351,
+                "Description": "Gas Drip Leg",
+                "price": 18.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.00,
+                "ImageURL": "Gas Drip Leg.jpeg"
+              },
+              {
+                "Ln#": 352,
+                "Description": "Gas Flex Line 1/2\"",
+                "price": 27.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 27.00,
+                "ImageURL": "GFL0.5.jpeg"
+              },
+              {
+                "Ln#": 353,
+                "Description": "Gas Flex Line 3/4\"",
+                "price": 40.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 40.00,
+                "ImageURL": "GFL0.75.jpeg"
+              },
+              {
+                "Ln#": 354,
+                "Description": "Gas Flex Line with Shut Off Valve 1/2\"",
+                "price": 57.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 57.00,
+                "ImageURL": "GFLSV0.5.jpeg"
+              },
+              {
+                "Ln#": 355,
+                "Description": "Gas Flex Line with Shut Off Valve 3/4\" and 24\" length",
+                "price": 84.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 84.00,
+                "ImageURL": "GFLSV0.75.jpeg"
+              },
+              {
+                "Ln#": 356,
+                "Description": "Stainless Steel Flex Line 3/4\" X 24\"",
+                "price": 18.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.00,
+                "ImageURL": "SFL0.75x24.jpeg"
+              },
+              {
+                "Ln#": 357,
+                "Description": "Over Kote Asphalt Pavement Coating",
+                "price": 120.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 120.00,
+                "ImageURL": "OKAPC.jpeg"
+              },
+              {
+                "Ln#": 358,
+                "Description": "ABS Glue 32oz.",
+                "price": 27.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 27.00,
+                "ImageURL": "ABSG.jpeg"
+              },
+              {
+                "Ln#": 359,
+                "Description": "Sewer Line Paint",
+                "price": 12.00,
+                "quantity": 1,
+                "Unit": "Can",
+                "extendedprice": 12.00,
+                "ImageURL": "SLP.jpeg"
+              },
+              {
+                "Ln#": 360,
+                "Description": "Gravel All Purpose",
+                "price": 15.00,
+                "quantity": 1,
+                "Unit": "Cubic Feet",
+                "extendedprice": 15.00,
+                "ImageURL": "APG.jpeg"
+              },
+              {
+                "Ln#": 361,
+                "Description": "ARC Bands Clay to Plastic 4\"",
+                "price": 61.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 61.00,
+                "ImageURL": "ARCC2P4.png"
+              },
+              {
+                "Ln#": 362,
+                "Description": "ARC Bands Clay to Clay 4\"",
+                "price": 42.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 42.00,
+                "ImageURL": "ARCC2C4.jpeg"
+              },
+              {
+                "Ln#": 363,
+                "Description": "ARC Bands Clay to Cast Iron or Plastic 4\"",
+                "price": 54.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 54.00,
+                "ImageURL": "ARCC2CIP4.jpeg"
+              },
+              {
+                "Ln#": 364,
+                "Description": "Round Christy Box",
+                "price": 58.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 58.00,
+                "ImageURL": "RCB.jpeg"
+              },
+              {
+                "Ln#": 365,
+                "Description": "Round Cast Iron Lid",
+                "price": 62.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 62.00,
+                "ImageURL": "RCILCB.jpeg"
+              },
+              {
+                "Ln#": 366,
+                "Description": "Round Concrete Sewer Lid",
+                "price": 26.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 26.00,
+                "ImageURL": "RCSL.jpeg"
+              },
+              {
+                "Ln#": 367,
+                "Description": "Rectangular Concrete Box",
+                "price": 50.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 50.00,
+                "ImageURL": "RCBCB.jpeg"
+              },
+              {
+                "Ln#": 368,
+                "Description": "Rectangular Cast Iron Lid",
+                "price": 87.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 87.00,
+                "ImageURL": "RCIL.jpeg"
+              },
+              {
+                "Ln#": 369,
+                "Description": "ABS Hangers Universal 1\" to 6\"",
+                "price": 10.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 10.00,
+                "ImageURL": "ABSHU.jpeg"
+              },
+              {
+                "Ln#": 370,
+                "Description": "Closet Flange aka Toilet Flange PVC",
+                "price": 19.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 19.00,
+                "ImageURL": "CFTFPVC.jpeg"
+              },
+              {
+                "Ln#": 371,
+                "Description": "Closet Flange aka Toilet Flange ABS",
+                "price": 22.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 22.00,
+                "ImageURL": "CFTFABS.jpeg"
+              },
+              {
+                "Ln#": 372,
+                "Description": "Closet Flange aka Toilet Flange Cast Iron",
+                "price": 72.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 72.00,
+                "ImageURL": "CFTFCI.jpeg"
+              },
+              {
+                "Ln#": 373,
+                "Description": "Virgin Base Rock",
+                "price": 72.00,
+                "quantity": 1,
+                "Unit": "Yard",
+                "extendedprice": 72.00,
+                "ImageURL": "VBR.jpeg"
+              },
+              {
+                "Ln#": 374,
+                "Description": "Sand",
+                "price": 91.00,
+                "quantity": 1,
+                "Unit": "Yard",
+                "extendedprice": 91.00,
+                "ImageURL": "sand.jpeg"
+              },
+              {
+                "Ln#": 375,
+                "Description": "Slurry Seal",
+                "price": 12.00,
+                "quantity": 1,
+                "Unit": "Gallon",
+                "extendedprice": 12.00,
+                "ImageURL": "Slurry Seal.jpeg"
+              },
+              {
+                "Ln#": 376,
+                "Description": "Electric Heat Pump 50 Gallon",
+                "price": 1550.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1550.00,
+                "ImageURL": "EHP50.jpeg"
+              },
+              {
+                "Ln#": 377,
+                "Description": "Electric Heat Pump 65 Gallon",
+                "price": 1950.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 1950.00,
+                "ImageURL": "EHP65.jpeg"
+              },
+              {
+                "Ln#": 378,
+                "Description": "Electric Heat Pump 75 Gallon",
+                "price": 2350.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 2350.00,
+                "ImageURL": "EHP75.jpeg"
+              },
+              {
+                "Ln#": 379,
+                "Description": "Male Adapter 3\" PVC",
+                "price": 9.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.00,
+                "ImageURL": "MA3PVC.jpeg"
+              },
+              {
+                "Ln#": 380,
+                "Description": "Male Adapter 2\" PVC",
+                "price": 7.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 7.00,
+                "ImageURL": "MA2PVC.jpeg"
+              },
+              {
+                "Ln#": 381,
+                "Description": "Male Adapter 1.5\" PVC",
+                "price": 5.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 5.00,
+                "ImageURL": "MA1.5PVC.jpeg"
+              },
+              {
+                "Ln#": 382,
+                "Description": "Male Adapter 3\" ABS",
+                "price": 14.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.00,
+                "ImageURL": "MA3ABS.jpeg"
+              },
+              {
+                "Ln#": 383,
+                "Description": "Male Adapter 2\" ABS",
+                "price": 9.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.00,
+                "ImageURL": "MA2ABS.jpeg"
+              },
+              {
+                "Ln#": 384,
+                "Description": "Male Adapter 1.5\" ABS",
+                "price": 6.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 6.00,
+                "ImageURL": "MA1.5ABS.jpeg"
+              },
+              {
+                "Ln#": 385,
+                "Description": "Combo 4\" PVC",
+                "price": 42.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 42.00,
+                "ImageURL": "C4PVC.jpeg"
+              },
+              {
+                "Ln#": 386,
+                "Description": "Combo 3\" PVC",
+                "price": 18.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 18.00,
+                "ImageURL": "C3PVC.jpeg"
+              },
+              {
+                "Ln#": 387,
+                "Description": "Combo 2\" PVC",
+                "price": 13.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 13.00,
+                "ImageURL": "C2PVC.jpeg"
+              },
+              {
+                "Ln#": 388,
+                "Description": "Combo 1.5\" PVC",
+                "price": 9.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.00,
+                "ImageURL": "C1.5PVC.jpeg"
+              },
+              {
+                "Ln#": 389,
+                "Description": "Combo 4\" ABS",
+                "price": 71.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 71.00,
+                "ImageURL": "C4ABS.jpeg"
+              },
+              {
+                "Ln#": 390,
+                "Description": "Combo 3\" ABS",
+                "price": 30.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 30.00,
+                "ImageURL": "C3ABS.jpeg"
+              },
+              {
+                "Ln#": 391,
+                "Description": "Combo 2\" ABS",
+                "price": 14.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 14.00,
+                "ImageURL": "C2ABS.jpeg"
+              },
+              {
+                "Ln#": 392,
+                "Description": "Combo 1.5\" ABS",
+                "price": 9.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 9.00,
+                "ImageURL": "C1.5ABS.jpeg"
+              },
+              {
+                "Ln#": 393,
+                "Description": "ABS to Cast Iron Bands 4\"",
+                "price": 26.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 26.00,
+                "ImageURL": "ABS2CI4.jpeg"
+              },
+              {
+                "Ln#": 394,
+                "Description": "ABS to Cast Iron Bands 3\"",
+                "price": 15.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 15.00,
+                "ImageURL": "ABS2CI3.jpeg"
+              },
+              {
+                "Ln#": 395,
+                "Description": "ABS to Cast Iron Bands 2\"",
+                "price": 11.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 11.00,
+                "ImageURL": "ABS2CI2.jpeg"
+              },
+              {
+                "Ln#": 396,
+                "Description": "ABS to Cast Iron Bands 1.5\"",
+                "price": 10.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 10.00,
+                "ImageURL": "ABS2CI1.5.jpeg"
+              },
+              {
+                "Ln#": 397,
+                "Description": "Dirt Dump Fee",
+                "price": 50.00,
+                "quantity": 1,
+                "Unit": "Yards",
+                "extendedprice": 50.00,
+                "ImageURL": "DDY.jpeg"
+              },
+              {
+                "Ln#": 398,
+                "Description": "Dirt Dump Fee (Half Truck)",
+                "price": 150.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 150.00,
+                "ImageURL": "DDHT.jpeg"
+              },
+              {
+                "Ln#": 399,
+                "Description": "Dirt Dump Fee (Full Truck)",
+                "price": 300.00,
+                "quantity": 1,
+                "Unit": "EA",
+                "extendedprice": 300.00,
+                "ImageURL": "DDHT.jpeg"
+              },
+              {
+                "Ln#": 400,
+                "Description": "Concrete Dump Fee",
+                "price": 75.00,
+                "quantity": 1,
+                "Unit": "yard",
+                "extendedprice": 75.00,
+                "ImageURL": "DDHT.jpeg"
+              },
+              {
+                "Ln#": 401,
+                "Description": "Wet Dirt/ Dirt Mix/ Small Rocks",
+                "price": 85.00,
+                "quantity": 1,
+                "Unit": "yard",
+                "extendedprice": 85.00,
+                "ImageURL": "DDHT.jpeg"
+              },
+              {
+                "Ln#": 402,
+                "Description": "1/2\" 4\" Galvanized Nipple",
+                "price": 2.07,
+                "quantity": 1,
+                "Unit": "Number",
+                "extendedprice": 2.07,
+                "ImageURL": "GalvNipple.jpeg"
+              },
+{
+                "Ln#": 403,
+                "Description": "1/2\" CAP Galvanized",
+                "price": 1.48,
+                "quantity": 1,
+                "Unit": "Number",
+                "extendedprice": 1.48,
+                "ImageURL": "CAPGalv.jpeg"
+              },
+{
+                "Ln#": 404,
+                "Description": "3/4\" MIP X Sweat Union",
+                "price": 89.1,
+                "quantity": 1,
+                "Unit": "Number",
+                "extendedprice": 89.1,
+                "ImageURL": "MIPXSweatUnion.jpeg"
+              },
+{
+                "Ln#": 405,
+                "Description": "75 Gallon Bradford White Water Heater",
+                "price": 1705.00,
+                "quantity": 1,
+                "Unit": "Number",
+                "extendedprice": 1705.00,
+                "ImageURL": "75 Gallon Bradford White Water Heater.jpeg"
+              },
+{
+                "Ln#": 406,
+                "Description": "4\" ¾\" Brass Nipple",
+                "price": 9.70,
+                "quantity": 1,
+                "Unit": "Number",
+                "extendedprice": 9.70,
+                "ImageURL": "BrassNipple.jpeg"
+              },    
+              ];
+    const equipmentsData = [
+    { "Ln#": 1, "Description": "Excavator Big", "pricePerDay": 50.00, "pricePerHour": 6.25, "quantity": 1, "Unit": "Machine", "ImageURL": "Equipment Images/Excavator Big.jpg" },
+      { "Ln#": 2, "Description": "Excavator Small", "pricePerDay": 40.00, "pricePerHour": 5.00, "quantity": 1, "Unit": "Machine", "ImageURL": "Equipment Images/Excavator Small.jpg" },
+      { "Ln#": 3, "Description": "Bob Cat/ Skid Steer", "pricePerDay": 40.00, "pricePerHour": 5.00, "quantity": 1, "Unit": "Machine", "ImageURL": "Equipment Images/Bobcat.jpg" },
+      { "Ln#": 4, "Description": "Hydro Truck", "pricePerDay": 40.00, "pricePerHour": 5.00, "quantity": 1, "Unit": "Truck", "ImageURL": "Equipment Images/Hydro Truck.jpg" },
+      { "Ln#": 5, "Description": "Dump Truck", "pricePerDay": 30.00, "pricePerHour": 3.75, "quantity": 1, "Unit": "Truck", "ImageURL": "Equipment Images/Dump Truck.jpg" },
+      { "Ln#": 6, "Description": "Trench Plates", "pricePerDay": 10, "pricePerHour": 1.25, "quantity": 1, "Unit": "Plate", "ImageURL": "Equipment Images/Trench Plates.jpg" },
+      { "Ln#": 7, "Description": "Vibrating Roller", "pricePerDay": 20.00, "pricePerHour": 2.50, "quantity": 1, "Unit": "Roller", "ImageURL": "Equipment Images/Vibrating Roller.jpg" },
+      { "Ln#": 8, "Description": "TrenchLess Machine", "pricePerDay": 50.00, "pricePerHour": 6.25, "quantity": 1, "Unit": "Machine", "ImageURL": "Equipment Images/Trenchless Machine.jpg" },
+      { "Ln#": 9, "Description": "Shoring", "pricePerDay": 10.00, "pricePerHour": 1.25, "quantity": 1, "Unit": "Set", "ImageURL": "Equipment Images/Shoring.jpg" },
+      ];
+      const permitsData = [
+      { "Ln#": 1, "Description": "Traffic Control Plan (TCP)", "price": 311.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TCP.jpg" },
+      { "Ln#": 2, "Description": "West Bay Sewer", "price": 510.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/WBS.jpg" },
+      { "Ln#": 3, "Description": "Fair Oaks Sewer", "price": 350.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/FOS.png" },
+      { "Ln#": 4, "Description": "Menlo Park Encroachment Permit", "price": 670.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MPEP.jpg" },
+      { "Ln#": 5, "Description": "Menlo Park Building Permit", "price": 160.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MPBP.png" },
+      { "Ln#": 6, "Description": "Palo Alto Building Permit", "price": 450.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PABP.jpg" },
+      { "Ln#": 7, "Description": "Palo Alto Street Permit", "price": 850.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PASP.jpg" },
+      { "Ln#": 8, "Description": "Atherton Building Permit", "price": 315.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/ABP.jpg" },
+      { "Ln#": 9, "Description": "Atherton Encroachment Permit", "price": 2550.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/AEP.jpg" },
+      { "Ln#": 10, "Description": "Atherton REFUNDABLE Deposit", "price": 2500.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/ARD.jpg" },
+      { "Ln#": 11, "Description": "Redwood City Building Permit", "price": 190.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/RCBP.jpg" },
+      { "Ln#": 12, "Description": "Redwood City Encroachment Permit", "price": 3000.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/RCEP.jpg" },
+      { "Ln#": 13, "Description": "Portola Valley Building Permit", "price": 433.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PVBP.jpg" },
+      { "Ln#": 14, "Description": "Portola Valley Encroachment Permit", "price": 943.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/PVEP.jpg" },
+      { "Ln#": 15, "Description": "Town of Woodside Building Permit", "price": 500.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TWBP.jpg" },
+      { "Ln#": 16, "Description": "Town of Woodside Encroachment Permit", "price": 1300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/TWEP.jpg" },
+      { "Ln#": 17, "Description": "Millbrae Buiding Permit", "price": 670.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MBP.jpg" },
+      { "Ln#": 18, "Description": "Millbrae Encroachment Permit", "price": 3400.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MEP.jpg" },
+      { "Ln#": 19, "Description": "San Carlos Building Permit", "price": 435.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/SCBP.jpg" },
+      { "Ln#": 20, "Description": "San Carlos Street Permit", "price": 575.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/SCSP.jpg" },
+      { "Ln#": 21, "Description": "Belmont Building Permit", "price": 350.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BBP.jpg" },
+      { "Ln#": 22, "Description": "Belmont Encroachment Permit", "price": 1250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BEP.jpg" },
+      { "Ln#": 23, "Description": "Belmont Security Deposit", "price": 600.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/BSD.jpg" },
+      { "Ln#": 24, "Description": "Mountain View Building Permit", "price": 300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MVBP.jpg" },
+      { "Ln#": 25, "Description": "Mountain View Encroachment Permit", "price": 1465.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/MVEP.jpg" },
+      { "Ln#": 26, "Description": "CITY of SAN MATEO Building Permit", "price": 300.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMBP.jpg" },
+      { "Ln#": 27, "Description": "CITY of SAN MATEO Encroachment Permit", "price": 950.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMEP.jpg" },
+      { "Ln#": 28, "Description": "CITY of SAN MATEO Security Deposit", "price": 3000.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CSMSD.jpg" },
+      { "Ln#": 29, "Description": "COUNTY of SAN MATEO Building Permit", "price": 250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CoSMBP.jpg" },
+      { "Ln#": 30, "Description": "COUNTY of SAN MATEO Encroachment Permit", "price": 550.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/CoSMEP.jpg" },
+      { "Ln#": 31, "Description": "Santa Clara Building Permit", "price": 250.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/StCBP.jpg" },
+      { "Ln#": 32, "Description": "Santa Clara Encroachment Permit", "price": 815.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/StCEP.jpg" },
+      { "Ln#": 33, "Description": "Hillsborough Building Permit", "price": 255.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/HBBP.jpg" },
+      { "Ln#": 34, "Description": "Hillsborough Encroachment Permit", "price": 1463.00, "quantity": 1, "Unit": "Permit", "ImageURL": "Permit Images/HBEP.jpg" },
+      ];
+
+// On window load, load cart from storage and display cart items
+window.onload = function () {
+  loadCartFromStorage();
+  updateCartItemCount();
+  displayCartItems();
+  updateTotalprice();
+};
+
+// Add to Cart function (typically called from the product pages)
+function addToCart(item) {
+  const uid = generateUID(item, "material");
+  const isCountable = item.Unit && item.Unit.toUpperCase() === "EA";
+  const qtyToAdd = isCountable ? item.quantity : 1;
+  const existingIndex = cart.findIndex(cartItem => cartItem.uid === uid);
+  if (existingIndex !== -1) {
+    cart[existingIndex].quantity += qtyToAdd;
+  } else {
+    cart.push({ ...item, uid, quantity: qtyToAdd });
+  }
+  saveCartToStorage();
+  updateCartItemCount();
+}
+
+// Clear Cart function
+function clearCart() {
+  cart = [];
+  saveCartToStorage();
+  updateCartItemCount();
+  displayCartItems();
+  updateTotalprice();
+}
+
+// Load cart from localStorage
+function loadCartFromStorage() {
+  const stored = localStorage.getItem('cart');
+  if (stored) {
+    cart = JSON.parse(stored);
+    updateCartItemCount();
+  }
+}
+
+// Save cart to localStorage
+function saveCartToStorage() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+// Update the cart counter; for non-"EA" items count 1 per distinct item
+function updateCartItemCount() {
+  const total = cart.reduce((sum, item) => {
+    if (item.Unit && item.Unit.toUpperCase() !== "EA") {
+      return sum + 1;
+    } else {
+      return sum + item.quantity;
+    }
+  }, 0);
+  document.getElementById('cart-counter').textContent = total;
+}
+
+// Display cart items in their respective containers
+function displayCartItems() {
+  const matContainer = document.getElementById('materials-container');
+  const equipContainer = document.getElementById('equipments-container');
+  const permContainer = document.getElementById('permits-container');
+  matContainer.innerHTML = '';
+  equipContainer.innerHTML = '';
+  permContainer.innerHTML = '';
+
+  if (cart.length === 0) {
+    matContainer.innerHTML = '<p>Your cart is empty.</p>';
+    equipContainer.innerHTML = '<p>Your cart is empty.</p>';
+    permContainer.innerHTML = '<p>Your cart is empty.</p>';
+    return;
+  }
+
+  const materials = cart.filter(item => isMaterial(item));
+  const equipments = cart.filter(item => isEquipment(item));
+  const permits = cart.filter(item => isPermit(item));
+
+  if (materials.length > 0) {
+    materials.forEach(item => {
+      const div = document.createElement('div');
+      div.classList.add('material', 'item-container');
+      div.innerHTML = getItemDetails(item);
+      matContainer.appendChild(div);
+    });
+  } else {
+    matContainer.innerHTML = '<p>No materials in the cart.</p>';
+  }
+
+  if (equipments.length > 0) {
+    equipments.forEach(item => {
+      const div = document.createElement('div');
+      div.classList.add('equipment', 'item-container');
+      div.innerHTML = getItemDetails(item);
+      equipContainer.appendChild(div);
+    });
+  } else {
+    equipContainer.innerHTML = '<p>No equipments in the cart.</p>';
+  }
+
+  if (permits.length > 0) {
+    permits.forEach(item => {
+      const div = document.createElement('div');
+      div.classList.add('permit', 'item-container');
+      div.innerHTML = getItemDetails(item);
+      permContainer.appendChild(div);
+    });
+  } else {
+    permContainer.innerHTML = '<p>No permits in the cart.</p>';
+  }
+}
+
+// Build HTML for a cart item
+function getItemDetails(cartItem) {
+  let details = '';
+  const qty = cartItem.quantity;
+  if (isEquipment(cartItem)) {
+    const priceType = cartItem.rentalType === 'perDay' ? 'Price per Day' : 'Price per Hour';
+    details = `
+      <h3><strong>${cartItem.Description}</strong></h3>
+      <p>Quantity: ${qty}</p>
+      <div class="quantity-control">
+        <button onclick="updatequantity('${cartItem.uid}', ${qty - 1})">-</button>
+        <span>${qty}</span>
+        <button onclick="updatequantity('${cartItem.uid}', ${qty + 1})">+</button>
+      </div>
+      <p>${priceType}: $${(cartItem.price * qty).toFixed(2)}</p>
+      <button class="remove-button" onclick="removeFromCart('${cartItem.uid}')">Remove</button>
+    `;
+  } else {
+    details = `
+      <h3><strong>${cartItem.Description}</strong></h3>
+      <p>Quantity: ${qty}</p>
+      <div class="quantity-control">
+        <button onclick="updatequantity('${cartItem.uid}', ${qty - 1})">-</button>
+        <span>${qty}</span>
+        <button onclick="updatequantity('${cartItem.uid}', ${qty + 1})">+</button>
+      </div>
+      <p>Price: $${(cartItem.price * qty).toFixed(2)}</p>
+      <button class="remove-button" onclick="removeFromCart('${cartItem.uid}')">Remove</button>
+    `;
+  }
+  return details;
+}
+
+// Update quantity for an item in the cart
+function updatequantity(uid, newqty) {
+  if (newqty > 0) {
+    const index = cart.findIndex(item => item.uid === uid);
+    if (index !== -1) {
+      cart[index].quantity = newqty;
+      displayCartItems();
+      updateCartItemCount();
+      saveCartToStorage();
+      updateTotalprice();
+    }
+  } else {
+    removeFromCart(uid);
+  }
+}
+
+// Remove an item from the cart
+function removeFromCart(uid) {
+  cart = cart.filter(item => item.uid !== uid);
+  displayCartItems();
+  updateCartItemCount();
+  saveCartToStorage();
+  updateTotalprice();
+}
+
+// Calculate total price for a given category of items
+function calculateTotalpriceForCategory(items) {
+  return items.reduce((total, item) => {
+    if (item.Unit && item.Unit.toUpperCase() !== "EA") {
+      return total + item.price;
+    } else {
+      return total + (item.price * item.quantity);
+    }
+  }, 0);
+}
+
+// Update overall total price and category totals in the cart page
+function updateTotalprice() {
+  const matTotal = calculateTotalpriceForCategory(cart.filter(item => isMaterial(item)));
+  const equipTotal = calculateTotalpriceForCategory(cart.filter(item => isEquipment(item)));
+  const permTotal = calculateTotalpriceForCategory(cart.filter(item => isPermit(item)));
+  document.getElementById('materials-total').textContent = `Total Materials price: $${matTotal.toFixed(2)}`;
+  document.getElementById('equipments-total').textContent = `Total Equipments price: $${equipTotal.toFixed(2)}`;
+  document.getElementById('permits-total').textContent = `Total Permits price: $${permTotal.toFixed(2)}`;
+  document.getElementById('total-price').textContent = (matTotal + equipTotal + permTotal).toFixed(2);
+}
+
+// Calculate grand total (if needed)
+function calculateGrandTotal(cart) {
+  const matTotal = calculateTotalpriceForCategory(cart.filter(item => isMaterial(item)));
+  const equipTotal = calculateTotalpriceForCategory(cart.filter(item => isEquipment(item)));
+  const permTotal = calculateTotalpriceForCategory(cart.filter(item => isPermit(item)));
+  return matTotal + equipTotal + permTotal;
+}
+
+// Generate HTML for printing the cart items in a table format
+function generateCartItemsHTML(cart) {
+  let html = '';
+  const categories = [
+    { items: cart.filter(item => isMaterial(item)), label: 'MATERIALS' },
+    { items: cart.filter(item => isEquipment(item)), label: 'EQUIPMENTS' },
+    { items: cart.filter(item => isPermit(item)), label: 'PERMITS' }
+  ];
+  categories.forEach(cat => {
+    if (cat.items.length > 0) {
+      html += `<tr class="category-heading"><td colspan="4">${cat.label}</td></tr>`;
+      cat.items.forEach((item, i) => {
+        html += `<tr>
+                    <td>${i + 1}</td>
+                    <td>${item.Description}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                 </tr>`;
+      });
+    }
+  });
+  return html;
+}
+
+// Function to print the cart with details
+function finalizeAndPrint() {
+  const technicianName = document.getElementById('technician-name').value.trim() || "N/A";
+  const date = document.getElementById('date').value || "N/A";
+  const jobAddress = document.getElementById('job-address').value.trim() || "N/A";
+  const notes = document.getElementById('notes').value.trim() || "N/A";
+  const printWindow = window.open('', '_blank');
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Print Bill</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2, h3 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        .category-heading { background-color: #f2f2f2; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <h1>BAYSHORE PLUMBERS - PROJECT CART</h1>
+      <h2>Cart Details</h2>
+      <h3>Input Fields</h3>
+      <table>
+        <tr><th>TECHNICIAN'S NAME:</th><td>${technicianName}</td></tr>
+        <tr><th>DATE:</th><td>${date}</td></tr>
+        <tr><th>JOB ADDRESS:</th><td>${jobAddress}</td></tr>
+        <tr><th>NOTES:</th><td>${notes}</td></tr>
+      </table>
+      <h3>Cart Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>S.No.</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${generateCartItemsHTML(cart)}
+        </tbody>
+      </table>
+      <h3>Total Price</h3>
+      <p>Total Materials price: $<span>${calculateTotalpriceForCategory(cart.filter(item => isMaterial(item))).toFixed(2)}</span></p>
+      <p>Total Equipments price: $<span>${calculateTotalpriceForCategory(cart.filter(item => isEquipment(item))).toFixed(2)}</span></p>
+      <p>Total Permits price: $<span>${calculateTotalpriceForCategory(cart.filter(item => isPermit(item))).toFixed(2)}</span></p>
+      <p><strong>Total Price: $<span>${calculateGrandTotal(cart).toFixed(2)}</span></strong></p>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+}
+
+// Update item quantity in the cart
+function updatequantity(uid, newqty) {
+  if (newqty > 0) {
+    const index = cart.findIndex(item => item.uid === uid);
+    if (index !== -1) {
+      cart[index].quantity = newqty;
+      displayCartItems();
+      updateCartItemCount();
+      saveCartToStorage();
+      updateTotalprice();
+    }
+  } else {
+    removeFromCart(uid);
+  }
+}
+
+// Remove an item from the cart
+function removeFromCart(uid) {
+  cart = cart.filter(item => item.uid !== uid);
+  displayCartItems();
+  updateCartItemCount();
+  saveCartToStorage();
+  updateTotalprice();
+}
+
+// Helper functions to determine item type based on normalized description
+function isMaterial(item) {
+  return materialsData.some(data => normalizeText(data.Description) === normalizeText(item.Description));
+}
+function isEquipment(item) {
+  return equipmentsData.some(data => normalizeText(data.Description) === normalizeText(item.Description));
+}
+function isPermit(item) {
+  return permitsData.some(data => normalizeText(data.Description) === normalizeText(item.Description));
+}
+
+// Redirect to cart page (if needed)
+function goToCartPage() {
+  window.location.href = 'cart.html';
+}
+
+// Optional search function for the cart page
+function searchItems() {
+  // Implement if needed.
+}
+
+// Debounce function
+function debounce(func, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+</script>
+<script src="https://polyfill.io/v3/polyfill.min.js"></script>
+</body>
+</html>

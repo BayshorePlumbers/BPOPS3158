@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <!-- Normalize & Modernizr (Optional) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+
+  <!-- On-screen and print styles -->
+  <link rel="stylesheet" href="payrollstyle.css" type="text/css">
+  <link rel="stylesheet" href="payrollprint.css" type="text/css" media="print">
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+  <title>Operations Project Report - Bayshore Plumbers</title>
+</head>
+<body>
+  <!-- Top Bar (matching style with com.html/htech.html) -->
+  <div class="top-bar">
+    <div class="logo-container">
+      <img src="BP.png" alt="Bayshore Plumbers Logo" class="logo">
+    </div>
+    <h1>Operations Project Report</h1>
+  </div>
+
+  <!-- Main Container -->
+  <main class="container">
+    <section class="calculator">
+      <form id="reportForm">
+        <!-- Job Details Table -->
+        <table class="input-data">
+          <tbody>
+            <tr>
+              <th>Job Address:</th>
+              <td>
+                <input type="text" id="ja" name="ja" placeholder="Enter job address here">
+              </td>
+              <th>Total Price:</th>
+              <td>
+                <input type="number" id="tp" name="tp" placeholder="Enter final selling price" min="0">
+              </td>
+            </tr>
+            <tr>
+              <th>Project Duration (hours):</th>
+              <td>
+                <input type="number" id="pd" name="pd" placeholder="Enter project duration" min="0">
+              </td>
+              <th>Material Expenses:</th>
+              <td>
+                <input type="number" id="material" name="material" placeholder="Enter material expenses" min="0">
+              </td>
+            </tr>
+            <tr>
+              <th>Other Expenses:</th>
+              <td>
+                <input type="number" id="oe" name="oe" placeholder="Enter other expenses" min="0">
+              </td>
+              <th>Date:</th>
+              <td>
+                <input type="date" id="date" name="date">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Labor Details Table -->
+        <table class="input-data">
+          <thead>
+            <tr>
+              <th colspan="4">Labor Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>Day 1:</th>
+              <td><input type="number" id="day1" name="day1" min="0"></td>
+              <th>Day 2:</th>
+              <td><input type="number" id="day2" name="day2" min="0"></td>
+            </tr>
+            <tr>
+              <th>Day 3:</th>
+              <td><input type="number" id="day3" name="day3" min="0"></td>
+              <th>Day 4:</th>
+              <td><input type="number" id="day4" name="day4" min="0"></td>
+            </tr>
+            <tr>
+              <th>Day 5:</th>
+              <td><input type="number" id="day5" name="day5" min="0"></td>
+              <th>Additional Hours:</th>
+              <td><input type="number" id="ah" name="ah" min="0"></td>
+            </tr>
+            <tr>
+              <th>Overtime Hours:</th>
+              <td><input type="number" id="toh" name="toh" min="0"></td>
+              <th>Total Hours:</th>
+              <td><input type="number" id="totalHours" name="totalHours" readonly></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Job Description Table -->
+        <table class="input-data">
+          <tbody>
+            <tr>
+              <th colspan="2">Job Description</th>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <textarea id="notes" name="notes" rows="4" placeholder="Enter job description/notes here"></textarea>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- For Office Use Only Table -->
+        <table class="input-data">
+          <thead>
+            <tr>
+              <th colspan="4">For Office Use Only</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>SW21/RP21:</th>
+              <td><input type="text" id="sw" name="sw" readonly></td>
+              <th>WH32:</th>
+              <td><input type="text" id="wh" name="wh" readonly></td>
+            </tr>
+            <tr>
+              <th>RD15/UL15:</th>
+              <td><input type="text" id="rd" name="rd" readonly></td>
+              <th>BP%:</th>
+              <td><input type="text" id="bpp" name="bpp" readonly></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Output Group -->
+        <div class="output-group">
+          <!-- "Kicker" in same bar style as "Total Commission" -->
+          <div class="commission-display">
+            Kicker: <span id="kicker">0.00</span>
+          </div>
+          <p id="jobBustMessage" class="job-bust-message"></p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="button-group">
+          <button type="button" id="calculateBtn">Generate Report</button>
+          <button type="button" id="printButton">Print</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="jr.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js"></script>
+</body>
+</html>

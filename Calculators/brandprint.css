@@ -1,0 +1,98 @@
+/* brandprint.css */
+/* Print stylesheet for a professional, black & white A4 layout */
+
+@page {
+    size: A4 portrait;
+    margin: 20mm;
+  }
+  
+  @media print {
+    /* Force black & white for all elements */
+    * {
+      color: #000 !important;
+      background: #fff !important;
+    }
+  
+    html, body {
+      width: 210mm;       /* A4 width */
+      height: 297mm;      /* A4 height */
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      font-size: 12pt;
+      line-height: 1.4;
+    }
+  
+    /* Attempt to avoid page breaks within main sections */
+    header, .container, .form-section, table.input-data, .final-price {
+      page-break-inside: avoid;
+    }
+  
+    /* Header */
+    header {
+      text-align: center;
+      padding: 10mm 0;
+      border-bottom: 1px solid #000;
+      margin: 0;
+    }
+  
+    .logo-container {
+      margin-bottom: 10px;
+    }
+  
+    .logo {
+      max-width: 80px;  /* Slightly bigger logo for print */
+      height: auto;
+    }
+  
+    h1 {
+      font-size: 16pt;
+      margin: 0;
+      font-weight: bold;
+      /* color forced to #000 by the global * rule */
+    }
+  
+    /* Remove backgrounds, borders, and shadows from containers/forms */
+    form, .calculator, .container {
+      background: #fff;
+      padding: 0;
+      box-shadow: none;
+      border: none;
+    }
+  
+    /* Table styling for input data display */
+    table.input-data {
+      width: 80%;                  /* Reduced width for centering */
+      margin: 0 auto 10mm auto;    /* Center the table horizontally */
+      border-collapse: collapse;
+    }
+  
+    table.input-data thead th {
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      border: 1px solid #000;
+    }
+  
+    table.input-data th,
+    table.input-data td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: left;
+      font-size: 12pt;
+    }
+  
+    /* Final Bidding Price styling */
+    .final-price {
+      font-weight: bold;
+      text-align: center;
+      font-size: 14pt;
+      margin-top: 10mm;
+    }
+  
+    /* Hide interactive elements */
+    button, .no-print, .info-icon {
+      display: none !important;
+    }
+  }
+  

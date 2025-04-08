@@ -1,0 +1,62 @@
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    margin: 20px;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .logo-container {
+    margin-bottom: 10px;
+  }
+  
+  .logo {
+    max-width: 150px;
+  }
+  
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .infographics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px;
+  }
+  
+  .infographic-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  
+  .infographic-item:hover {
+    transform: scale(1.05);
+  }
+  
+  .infographic-item img {
+    width: 100%;
+    height: auto;
+  }
+  
+  figcaption {
+    margin-top: 10px;
+    font-size: 1em;
+  }
+  
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.9em;
+    color: #777;
+  }
+  
